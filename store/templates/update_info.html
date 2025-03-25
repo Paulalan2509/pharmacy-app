@@ -1,5 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
+
+<style>
+
+  body {
+        font-family: 'Roboto Serif', serif;
+  }
+</style>
+
 <div class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
     <!-- Animated background shapes -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -34,7 +42,7 @@
                         {% for field in form %}
                         <div class="relative {% if field.name in 'address,address2' %}sm:col-span-2{% endif %}">
                             {{ field }}
-                            <label for="{{ field.id_for_label }}" class="absolute left-3 top-3 text-gray-400 pointer-events-none transition-all duration-300">
+                            <label for="{{ field.id_for_label }}" class="absolute left-3 top-5 text-gray-400 pointer-events-none transition-all duration-300">
                                 {{ field.label }}
                             </label>
                             {% if field.errors %}
@@ -60,7 +68,7 @@
                         {% for field in shipping_form %}
                         <div class="relative {% if field.name in 'address,address2' %}sm:col-span-2{% endif %}">
                             {{ field }}
-                            <label for="{{ field.id_for_label }}" class="absolute left-3 top-3 text-gray-400 pointer-events-none transition-all duration-300">
+                            <label for="{{ field.id_for_label }}" class="absolute left-3 top-6 text-gray-400 pointer-events-none transition-all duration-300">
                                 {{ field.label }}
                             </label>
                             {% if field.errors %}

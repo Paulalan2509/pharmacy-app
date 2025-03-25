@@ -23,19 +23,12 @@ class ShippingAddress(models.Model):
         verbose_name_plural = "Shipping Address"
 
     def __str__(self):
-        return f'Shipping Address - {str(self.id)}'
+        return f'Shipping Address - {self.id}'
 
-    # Create a user Shipping Address by default when user signs up
-
-
-def create_shipping(sender, instance, created, **kwargs):
-    if created:
-        user_shipping = ShippingAddress(user=instance)
-        user_shipping.save()
-
-
-# Automate the profile thing
-post_save.connect(create_shipping, sender=User)
+    @receiver(post_save, sender=User)
+    def create_shipping(sender, instance, created, **kwargs):
+        if created:
+            ShippingAddress.objects.create(user=instance)
 
 
 # Create Order Model

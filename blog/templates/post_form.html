@@ -1,0 +1,551 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create/Edit Blog Post</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://unpkg.com/@yaireo/tagify"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
+    <!-- Tagify CSS -->
+    <link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet">
+
+    <style>
+        .focus-mode {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .progress-bar {
+            transition: width 0.3s ease-in-out;
+        }
+
+        body {
+        font-family: 'Roboto Serif', serif;
+
+        }
+
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50" x-data="formHandler()">
+    <!-- Notification System -->
+    <div
+        x-show="notification.show"
+        x-transition
+        class="fixed top-4 right-4 p-4 rounded-lg shadow-lg notification"
+        :class="notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'"
+    >
+        <p class="text-white" x-text="notification.message"></p>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="fixed top-0 left-0 w-full h-1 bg-gray-200">
+        <div class="progress-bar h-full bg-blue-500" :style="`width: ${completion}%`"></div>
+    </div>
+
+    <!-- Main Form Container -->
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <form
+            id="postForm"
+            @submit.prevent="submitForm"
+            class="space-y-6"
+            x-data="{ isDirty: false }"
+            @change="isDirty = true"
+        >
+            {% csrf_token %}
+
+            <!-- Title Section -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Title</label>
+                <div class="relative">
+                    <input
+                        type="text"
+                        name="title"
+                        x-model="formData.title"
+                        @input="checkTitle"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                        maxlength="100"
+                    >
+                    <span
+                        class="absolute right-2 bottom-2 text-sm text-gray-500"
+                        x-text="`${formData.title.length}/100`"
+                    ></span>
+                </div>
+            </div>
+
+            <!-- Featured Image -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Featured Image</label>
+                <div
+                    class="border-2 border-dashed rounded-lg p-4"
+                    @dragover.prevent
+                    @drop.prevent="handleImageDrop"
+                >
+                    <input
+                        type="file"
+                        name="featured_image"
+                        accept="image/png,image/jpeg,image/webp"
+                        @change="handleImageSelect"
+                        class="hidden"
+                        id="imageInput"
+                    >
+                    <div class="text-center" x-show="!formData.imagePreview">
+                        <button
+                            type="button"
+                            @click="document.getElementById('imageInput').click()"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                        >
+                            Select Image
+                        </button>
+                        <p class="mt-2 text-sm text-gray-500">or drag and drop (max 5MB)</p>
+                    </div>
+                    <div x-show="formData.imagePreview" class="relative">
+                        <img
+                            :src="formData.imagePreview"
+                            class="max-h-64 mx-auto rounded-lg"
+                        >
+                        <button
+                            @click="removeImage"
+                            class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"
+                        >
+                            ×
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Editor -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Content</label>
+                <textarea
+                    id="content"
+                    name="content"
+                    x-model="formData.content"
+                    class="hidden"
+                ></textarea>
+                <!-- Word count and reading time -->
+                <div class="flex justify-between text-sm text-gray-500 mt-2">
+                    <span x-text="`Words: ${wordCount}`"></span>
+                    <span x-text="`Reading time: ${readingTime} min`"></span>
+                </div>
+            </div>
+
+            <!-- Category Selection -->
+         <!-- Category Selection -->
+<div class="space-y-2" x-data="{ selectedCategory: '{{ form.instance.category.id|default:"" }}' }">
+    <label class="block text-sm font-medium text-gray-700">Category</label>
+    <div class="relative">
+        <select
+            name="category"
+            x-model="selectedCategory"
+            @change="formData.category = $event.target.value"
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+            :class="{'border-red-500': !formData.category && isDirty}"
+        >
+            <option value="">Select a category</option>
+            {% for category in categories %}
+                <option
+                    value="{{ category.id }}"
+                    {% if form.instance.category_id == category.id %}selected{% endif %}
+                >
+                    {{ category.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <div
+            x-show="!formData.category && isDirty"
+            class="text-red-500 text-sm mt-1"
+        >
+            Please select a category
+        </div>
+    </div>
+
+    <!-- Category Description -->
+    <div
+        x-show="selectedCategory"
+        x-transition
+        class="text-sm text-gray-600 mt-2"
+    >
+        {% for category in categories %}
+            <div x-show="selectedCategory === '{{ category.id }}'">
+                {{ category.description|default:"" }}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+            <!-- Tags -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Tags</label>
+                <input
+                    type="text"
+                    name="tags"
+                    id="tags"
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+            </div>
+
+            <!-- Meta Description -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Meta Description</label>
+                <textarea
+                    name="meta_description"
+                    x-model="formData.metaDescription"
+                    @input="checkMetaDescription"
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    rows="3"
+                    maxlength="160"
+                ></textarea>
+                <span
+                    class="text-sm text-gray-500"
+                    x-text="`${formData.metaDescription.length}/160`"
+                ></span>
+            </div>
+
+            <!-- Status Toggle -->
+            <div class="flex items-center space-x-4">
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input
+                        type="checkbox"
+                        x-model="formData.status"
+                        class="sr-only peer"
+                    >
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <span class="ml-3 text-sm font-medium text-gray-900">Publish</span>
+                </label>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-between">
+                <button
+                    type="button"
+                    @click="toggleFocusMode"
+                    class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                >
+                    Toggle Focus Mode
+                </button>
+                <div class="space-x-4">
+                    <button
+                        type="button"
+                        @click="previewPost"
+                        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                    >
+                        Preview
+                    </button>
+                    <button
+                        type="submit"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                        :disabled="!isValid"
+                    >
+                        Save Post
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Focus Mode Overlay -->
+    <div
+        x-show="focusMode"
+        x-transition
+        class="fixed inset-0 focus-mode z-50 flex items-center justify-center"
+    >
+        <div class="bg-white p-8 rounded-lg max-w-4xl w-full">
+            <textarea
+                x-model="formData.content"
+                class="w-full h-96 p-4 focus:outline-none"
+                placeholder="Write your content here..."
+            ></textarea>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div
+        x-show="previewMode"
+        x-transition
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+    >
+        <div class="bg-white p-8 rounded-lg max-w-4xl w-full h-3/4 overflow-auto">
+            <h1 x-text="formData.title" class="text-3xl font-bold mb-4"></h1>
+            <div x-html="marked(formData.content)" class="prose"></div>
+            <button
+                @click="previewMode = false"
+                class="mt-4 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+            >
+                Close Preview
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize TinyMCE
+        tinymce.init({
+            selector: '#content',
+            plugins: 'link image code table lists',
+            toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link image | code',
+            height: 400,
+            setup: function(editor) {
+                editor.on('change', function() {
+                    editor.save();
+                    document.querySelector('#content').dispatchEvent(new Event('input'));
+                });
+            }
+        });
+
+        // Initialize Tagify
+        const tagInput = document.querySelector('#tags');
+        const tagify = new Tagify(tagInput, {
+            maxTags: 10,
+            dropdown: {
+                enabled: 0
+            }
+        });
+
+        // Alpine.js form handler
+        function formHandler() {
+            return {
+                formData: {
+                    title: '',
+                    content: '',
+                    category: '',
+                    metaDescription: '',
+                    tags: [],
+                    status: false,
+                    imagePreview: null
+                },
+                focusMode: false,
+                previewMode: false,
+                notification: {
+                    show: false,
+                    message: '',
+                    type: 'success'
+                },
+                completion: 0,
+                autoSaveInterval: null,
+
+                init() {
+                    this.setupAutoSave();
+                    window.addEventListener('beforeunload', (e) => {
+                        if (this.isDirty) {
+                            e.preventDefault();
+                            e.returnValue = '';
+                        }
+                    });
+                },
+
+                get wordCount() {
+                    return this.formData.content.split(/\s+/).filter(Boolean).length;
+                },
+
+                get readingTime() {
+                    return Math.ceil(this.wordCount / 200);
+                },
+
+                get isValid() {
+                    return this.formData.title &&
+                           this.formData.content &&
+                           this.formData.category;
+                },
+
+                setupAutoSave() {
+                    this.autoSaveInterval = setInterval(() => {
+                        if (this.isDirty) {
+                            this.saveAsDraft();
+                        }
+                    }, 60000); // Auto-save every minute
+                },
+
+                async saveAsDraft() {
+                    try {
+                        // Implement draft saving logic here
+                        this.showNotification('Draft saved successfully', 'success');
+                    } catch (error) {
+                        this.showNotification('Failed to save draft', 'error');
+                    }
+                },
+
+                showNotification(message, type = 'success') {
+                    this.notification = {
+                        show: true,
+                        message,
+                        type
+                    };
+                    setTimeout(() => {
+                        this.notification.show = false;
+                    }, 3000);
+                },
+
+                toggleFocusMode() {
+                    this.focusMode = !this.focusMode;
+                    if (this.focusMode) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = 'auto';
+                    }
+                },
+
+                previewPost() {
+                    this.previewMode = true;
+                },
+
+                async handleImageSelect(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        await this.validateAndPreviewImage(file);
+                    }
+                },
+
+                async handleImageDrop(event) {
+                    const file = event.dataTransfer.files[0];
+                    if (file) {
+                        await this.validateAndPreviewImage(file);
+                    }
+                },
+
+                async validateAndPreviewImage(file) {
+                    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+                        this.showNotification('Please upload PNG, JPG, or WEBP images only', 'error');
+                        return;
+                    }
+
+                    if (file.size > 5 * 1024 * 1024) {
+                        this.showNotification('Image must be less than 5MB', 'error');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.formData.imagePreview = e.target.result;
+                        this.updateCompletion();
+                    };
+                    reader.readAsDataURL(file);
+                },
+
+                removeImage() {
+                    this.formData.imagePreview = null;
+                    document.getElementById('imageInput').value = '';
+                    this.updateCompletion();
+                },
+
+                checkTitle() {
+                    if (this.formData.title.length > 100) {
+                        this.formData.title = this.formData.title.substring(0, 100);
+                    }
+                    this.updateCompletion();
+                },
+
+                checkMetaDescription() {
+                    if (this.formData.metaDescription.length > 160) {
+                        this.formData.metaDescription = this.formData.metaDescription.substring(0, 160);
+                    }
+                    this.updateCompletion();
+                },
+
+                updateCompletion() {
+                    let completed = 0;
+                    const total = 5; // Total required fields
+
+                    if (this.formData.title) completed++;
+                    if (this.formData.content) completed++;
+                    if (this.formData.category) completed++;
+                    if (this.formData.metaDescription) completed++;
+                    if (this.formData.imagePreview) completed++;
+
+                    this.completion = (completed / total) * 100;
+                },
+
+                async submitForm() {
+                    if (!this.isValid) {
+                        this.showNotification('Please fill in all required fields', 'error');
+                        return;
+                    }
+
+                    try {
+                        const formElement = document.getElementById('postForm');
+                        const formData = new FormData(formElement);
+
+                        // Add the status
+                        formData.append('status', this.formData.status ? 'published' : 'draft');
+
+                        // Add tags
+                        const tags = tagify.value.map(tag => tag.value);
+                        formData.append('tags', JSON.stringify(tags));
+
+                        // Show loading state
+                        const submitButton = formElement.querySelector('button[type="submit"]');
+                        const originalText = submitButton.textContent;
+                        submitButton.textContent = 'Saving...';
+                        submitButton.disabled = true;
+
+                        // Animate the submission
+                        gsap.to('.progress-bar', {
+                            width: '100%',
+                            duration: 0.5,
+                            ease: 'power2.out'
+                        });
+
+                        const response = await fetch(formElement.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Submission failed');
+                        }
+
+                        const data = await response.json();
+                        this.showNotification('Post saved successfully!', 'success');
+                        this.isDirty = false;
+
+                        // Redirect after successful submission
+                        setTimeout(() => {
+                            window.location.href = data.redirect_url;
+                        }, 1000);
+                    } catch (error) {
+                        console.error('Error:', error);
+                        this.showNotification('Failed to save post. Please try again.', 'error');
+                    } finally {
+                        // Reset button state
+                        const submitButton = document.querySelector('button[type="submit"]');
+                        submitButton.textContent = 'Save Post';
+                        submitButton.disabled = false;
+                    }
+                }
+            };
+        }
+
+        // Listen for browser back/forward navigation
+        window.addEventListener('popstate', () => {
+            if (document.querySelector('[x-data]').__x.$data.isDirty) {
+                if (confirm('You have unsaved changes. Are you sure you want to leave?')) {
+                    return true;
+                } else {
+                    history.pushState(null, null, window.location.href);
+                    return false;
+                }
+            }
+        });
+    </script>
+</body>
+
+{% endblock %}

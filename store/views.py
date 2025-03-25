@@ -14,18 +14,35 @@ from payment.models import ShippingAddress, Order, OrderItem
 
 
 def home(request):
-    return render(request, 'index.html', {})
+    if request.user.is_authenticated:
+        user_profile = Profile.objects.get(user=request.user)
+    else:
+        user_profile = None
+
+    return render(request, 'index.html', {'user_profile': user_profile})
 
 
 def contact(request):
-    return render(request, 'contact.html', {})
+    if request.user.is_authenticated:
+        user_profile = Profile.objects.get(user=request.user)
+    else:
+        user_profile = None
+    return render(request, 'contact.html', {'user_profile': user_profile})
 
 
 def faq(request):
-    return render(request, 'faq.html', {})
+    if request.user.is_authenticated:
+        user_profile = Profile.objects.get(user=request.user)
+    else:
+        user_profile = None
+    return render(request, 'faq.html', {'user_profile': user_profile})
 
 
 def store(request):
+    if request.user.is_authenticated:
+        user_profile = Profile.objects.get(user=request.user)
+    else:
+        user_profile = None
     # Start with all products
     products = Product.objects.all()
 
@@ -62,57 +79,92 @@ def store(request):
         products = products.filter(category__id__in=category_ids)
 
         # Pagination
-    paginator = Paginator(Product.objects.all(), 9)  # Show 9 products per page
+    paginator = Paginator(Product.objects.all(), 6)  # Show  6 products per page
     page_number = request.GET.get('page', 1)
     page_objects = paginator.get_page(page_number)
 
-    return render(request, 'pharmacy.html', {'products': products, "categories": categories, 'page_obj': page_objects})
+    return render(request, 'pharmacy.html', {'products': products, "categories": categories, 'page_obj': page_objects, 'user_profile': user_profile})
 
 
-# @admin
+
 def dashboard(request):
-    profiles = Profile.objects.all()
-    # categories = Category.objects.all()
-    # products = Product.objects.all()
-    # order = Order.objects.get(id=pk)
-    # items = OrderItem.objects.filter(order=pk)
+    if request.user.is_authenticated and request.user.is_superuser:
+        profiles = Profile.objects.all()
+        not_shipped_orders = Order.objects.filter(shipped=False)
+        shipped_orders = Order.objects.filter(shipped=True)
 
-    return render(request, 'dashboard.html', {'profiles': profiles})
+        context = {
+            'profiles': profiles,
+            'not_shipped_orders': not_shipped_orders,
+            'shipped_orders': shipped_orders,
+        }
 
+        return render(request, 'dashboard.html', context)
+    else:
+        messages.success(request, "Access Denied")
+        return redirect('home')
 
 def about(request):
-    return render(request, 'about.html', {})
+    if request.user.is_authenticated:
+        user_profile = Profile.objects.get(user=request.user)
+    else:
+        user_profile = None
+    return render(request, 'about.html', {'user_profile': user_profile})
 
 
 def login_user(request):
+    error_message = None
+
     if request.method == 'POST':
-        print('My', request)
         username = request.POST['username']
         password = request.POST['password']
+        remember_me = request.POST.get('remember', None)
+
+        # Form validation
+        if not username:
+            error_message = "Username is required."
+            return render(request, 'login.html', {'error_message': error_message})
+
+        if not password:
+            error_message = "Password is required."
+            return render(request, 'login.html', {'error_message': error_message})
+
+        # Authenticate user
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
             login(request, user)
 
+            # Set session expiry based on remember me checkbox
+            if remember_me:
+                request.session.set_expiry(1209600)  # 2 weeks
+                request.session.modified = True
+            else:
+                request.session.set_expiry(0)  # Browser close
+
             # Do some shopping cart stuff
-            current_user = Profile.objects.get(user__id=request.user.id)
-            # Get their saved cart from database
-            saved_cart = current_user.old_cart
-            # Convert database string to python dictionary
-            if saved_cart:
-                # Convert to dictionary using JSON
-                converted_cart = json.loads(saved_cart)
-                # Add the loaded cart dictionary to our session
-                # Get the cart
-                cart = Cart(request)
-                # Loop through the cart and add the items from the database
-                for key, value in converted_cart.items():
-                    cart.db_add(product=key, quantity=value)
+            try:
+                current_user = Profile.objects.get(user__id=request.user.id)
+                # Get their saved cart from database
+                saved_cart = current_user.old_cart
+                # Convert database string to python dictionary
+                if saved_cart:
+                    # Convert to dictionary using JSON
+                    converted_cart = json.loads(saved_cart)
+                    # Add the loaded cart dictionary to our session
+                    # Get the cart
+                    cart = Cart(request)
+                    # Loop through the cart and add the items from the database
+                    for key, value in converted_cart.items():
+                        cart.db_add(product=key, quantity=value)
+            except Exception as e:
+                print(f"Error loading cart: {e}")
 
             messages.success(request, 'You Have Been Logged in successfully')
             return redirect('pharmacy')
         else:
-            messages.warning(request, 'There was an error please try to login....')
-            return redirect('login')
+            error_message = "Invalid username or password. Please try again."
+            return render(request, 'login.html', {'error_message': error_message})
     else:
         return render(request, 'login.html', {})
 
@@ -144,6 +196,11 @@ def register_user(request):
 
 
 def product(request, pk):
+    if request.user.is_authenticated:
+        user_profile = Profile.objects.get(user=request.user)
+    else:
+        user_profile = None
+
     product = get_object_or_404(Product, id=pk)
     reviews = product.reviews.all().order_by('-date')
     average_rating = product.average_rating()
@@ -181,10 +238,15 @@ def add_review(request, product_id):
             return redirect('product', pk=product_id)
     else:
         form = ProductReviewForm()
-    return render(request, 'product.html', {'form': form, 'product': product})
+    return render(request, 'product.html', {'form': form, 'product': product, 'user_profile': user_profile})
 
 
 def category(request, foo):
+    if request.user.is_authenticated:
+        user_profile = Profile.objects.get(user=request.user)
+    else:
+        user_profile = None
+
     # replace hyphens with spaces
     foo = foo.replace('-', ' ')
     # Grab the category from the url
@@ -194,7 +256,7 @@ def category(request, foo):
 
         # Get all products in that category
         products = Product.objects.filter(category=category)
-        return render(request, 'category.html', {'products': products, 'category': category})
+        return render(request, 'category.html', {'products': products, 'category': category, 'user_profile': user_profile})
 
     except:
         messages.error(request, 'That Category Doesnt Exist....')
@@ -202,11 +264,21 @@ def category(request, foo):
 
 
 def category_summary(request):
+    if request.user.is_authenticated:
+        user_profile = Profile.objects.get(user=request.user)
+    else:
+        user_profile = None
+
     categories = Category.objects.all()
-    return render(request, 'category_summary.html', {"categories": categories})
+    return render(request, 'category_summary.html', {"categories": categories, 'user_profile': user_profile})
 
 
 def update_user(request):
+    if request.user.is_authenticated:
+        user_profile = Profile.objects.get(user=request.user)
+    else:
+        user_profile = None
+
     if request.user.is_authenticated:
         current_user = User.objects.get(id=request.user.id)
         user_form = UpdateUserForm(request.POST or None, instance=current_user)
@@ -217,13 +289,18 @@ def update_user(request):
             login(request, current_user)
             messages.success(request, "User Has Been Updated!!")
             return redirect('home')
-        return render(request, "update_user.html", {'user_form': user_form})
+        return render(request, "update_user.html", {'user_form': user_form, 'user_profile': user_profile}, )
     else:
         messages.warning(request, "You Must Be Logged In To Access That Page!!")
         return redirect('home')
 
 
 def update_password(request):
+    if request.user.is_authenticated:
+        user_profile = Profile.objects.get(user=request.user)
+    else:
+        user_profile = None
+
     if request.user.is_authenticated:
         current_user = request.user
         # Did they fill out the form
@@ -241,45 +318,53 @@ def update_password(request):
                 return redirect('update_password')
         else:
             form = ChangePasswordForm(current_user)
-            return render(request, "update_password.html", {'form': form})
+            return render(request, "update_password.html", {'form': form, 'user_profile': user_profile})
     else:
         messages.warning(request, "You Must Be Logged In To View That Page...")
         return redirect('home')
 
 
 def update_info(request):
-    if request.user.is_authenticated:
-        # Get Current User
-        current_user = Profile.objects.get(user__id=request.user.id)
-
-        # Get Current User's Shipping Info
-        shipping_user = ShippingAddress.objects.get(user__id=request.user.id)
-
-        if request.method == 'POST':
-            # Get original User Form
-            form = UserInfoForm(request.POST or None, instance=current_user)
-
-            # Get User's Shipping Form
-            shipping_form = ShippingForm(request.POST or None, instance=shipping_user)
-
-            if form.is_valid() and shipping_form.is_valid():
-                # Save original form
-                form.save()
-
-                # Save shipping form
-                shipping_address = shipping_form.save(commit=False)
-                shipping_address.user = current_user
-                shipping_address.save()
-
-                messages.success(request, "Your Info Has Been Updated!!")
-                return redirect('profile')
-
-            return render(request, "update_info.html", {'form': form, 'shipping_form': shipping_form})
-
-    else:
+    # Redirect if not authenticated
+    if not request.user.is_authenticated:
         messages.warning(request, "You Must Be Logged In To Access That Page!!")
-    return redirect('home')
+        return redirect('home')
 
+    # Get user profile
+    user_profile = Profile.objects.get(user=request.user)
+    current_user = Profile.objects.get(user__id=request.user.id)
+    shipping_user = ShippingAddress.objects.get(user__id=request.user.id)
+
+    if request.method == 'POST':
+        # Get original User Form
+        form = UserInfoForm(request.POST or None, instance=current_user)
+
+        # Get User's Shipping Form
+        shipping_form = ShippingForm(request.POST or None, instance=shipping_user)
+
+        if form.is_valid() and shipping_form.is_valid():
+            # Save original form
+            form.save()
+
+            # Save shipping form
+            shipping_address = shipping_form.save(commit=False)
+
+            # Use request.user instead of current_user (which is a Profile)
+            shipping_address.user = request.user  # Changed from current_user to request.user
+            shipping_address.save()
+
+            messages.success(request, "Your Info Has Been Updated!!")
+            return redirect('home')
+    else:
+        # Initialize forms with current data
+        form = UserInfoForm(instance=current_user)
+        shipping_form = ShippingForm(instance=shipping_user)
+
+    return render(request, "update_info.html", {
+        'form': form,
+        'shipping_form': shipping_form,
+        'user_profile': user_profile
+    })
 
 def search(request):
     # Determine if they filled out the form

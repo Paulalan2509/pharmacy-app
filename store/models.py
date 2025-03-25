@@ -11,12 +11,12 @@ class Profile(models.Model):
     image = models.ImageField(upload_to='uploads/profile/')
     date_modified = models.DateTimeField(User, auto_now_add=True)
     phone_number = models.CharField(max_length=20, blank=True)
-    address_1 = models.CharField(max_length=180, blank=True)
-    address_2 = models.CharField(max_length=180, blank=True)
-    city = models.CharField(max_length=180, blank=True)
-    region_or_state = models.CharField(max_length=180, blank=True)
-    zipcode = models.CharField(max_length=180, blank=True)
-    country = models.CharField(max_length=180, blank=True)
+    address_1 = models.CharField(max_length=100, blank=True)
+    address_2 = models.CharField(max_length=100, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    region_or_state = models.CharField(max_length=100, blank=True)
+    zipcode = models.CharField(max_length=50, blank=True)
+    country = models.CharField(max_length=50, blank=True)
     old_cart = models.CharField(max_length=180, blank=True, null=True)
 
     def __str__(self):
@@ -49,7 +49,7 @@ class Customer(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length=25)
     address = models.CharField(max_length=50)
     password = models.CharField(max_length=50)
 
@@ -69,7 +69,6 @@ class Product(models.Model):
     price = models.FloatField(default=0, max_length=13)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
     description = models.TextField(default='', blank=True, null=True)
-    product_details = models.TextField(default='', blank=True, null=True)
     image = models.ImageField(upload_to='uploads/product/')
     availability_status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='In Stock')
     expiration_date = models.DateField(blank=True, null=True)
@@ -111,24 +110,3 @@ class ProductReview(models.Model):
         return '★' * self.rating + '☆' * (5 - self.rating)
 
 
-# customer order
-class Order(models.Model):
-    STATUS_CHOICES = [
-        ('PENDING', 'Pending'),
-        ('PROCESSING', 'Processing'),
-        ('SHIPPED', 'Shipped'),
-        ('DELIVERED', 'Delivered'),
-        ('CANCELLED', 'Cancelled')
-    ]
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=1)
-    order_date = models.DateTimeField(datetime.datetime.today)
-    phone = models.CharField(max_length=10, default='', blank=False)
-    address = models.CharField(max_length=70, default='', blank=False)
-    total_amount = models.DecimalField(default=0, max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    payment_status = models.CharField(max_length=20, default='unpaid')
-
-    def __str__(self):
-        return f"Order {self.product} by {self.customer}"

@@ -2,18 +2,29 @@
 {% load static %}
 
 {% block extra_head %}
+
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-{% endblock %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/country-select-js/2.1.1/js/countrySelect.min.js"></script>
 
+{% endblock %}
 {% block content %}
+
+<style>
+
+  body {
+        font-family: 'Roboto Serif', serif;
+  }
+</style>
+
 <div class="bg-gray-100 min-h-screen" x-data="{ showBillingDetails: false }">
     <div class="container mx-auto px-4 py-8">
         <div class="flex flex-col md:flex-row gap-8">
             <!-- Left Column -->
             <div class="md:w-2/3 space-y-8">
-                <div class="bg-white rounded-lg shadow-md font-['Poppins'] p-6 transition-all duration-300 ease-in-out transform hover:scale-105">
-                    <h2 class="text-2xl font-['Poppins'] font-bold mb-4">Order Summary</h2>
+                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-105">
+                    <h2 class="text-2xl  font-bold mb-4">Order Summary</h2>
                     <div class="space-y-4">
                         {% for product in cart_products %}
                         <div class="flex justify-between items-center border-b pb-2">
@@ -46,36 +57,43 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 font-['Poppins'] ease-in-out transform hover:scale-105">
-                    <h2 class="text-2xl font-bold mb-4">Shipping Information</h2>
-                    <form method="POST" action="{% url 'billing_info' %}" class="space-y-4">
-                        {% csrf_token %}
-                        {% for field in shipping_form %}
-                        <div class="flex flex-col">
-                            <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
-                            {% if field.field.widget.input_type == 'text' or field.field.widget.input_type == 'email' %}
-                                <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" {% if field.field.required %}required{% endif %}>
-                            {% elif field.field.widget.input_type == 'select' %}
-                                <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" {% if field.field.required %}required{% endif %}>
-                                    {% for choice in field.field.choices %}
-                                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-                                    {% endfor %}
-                                </select>
-                            {% else %}
-                                {{ field }}
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200">
-                            Continue To Billing
-                        </button>
-                    </form>
-                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-105">
+    <h2 class="text-2xl font-bold mb-4">Shipping Information</h2>
+    <form method="POST" action="{% url 'billing_info' %}" class="space-y-4">
+        {% csrf_token %}
+        {% for field in shipping_form %}
+        <div class="flex flex-col">
+            <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+            {% if field.field.widget.input_type == 'text' or field.field.widget.input_type == 'email' %}
+                <input type="{{ field.field.widget.input_type }}"
+                       name="{{ field.name }}"
+                       id="{{ field.id_for_label }}"
+                       value="{{ field.value|default:'' }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                       {% if field.field.required %}required{% endif %}>
+            {% elif field.field.widget.input_type == 'select' %}
+                <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" {% if field.field.required %}required{% endif %}>
+                    {% for choice in field.field.choices %}
+                    <option value="{{ choice.0 }}" {% if field.value == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+            {% else %}
+                {{ field }}
+            {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200">
+            Continue To Billing
+        </button>
+    </form>
+</div>
+
+
             </div>
 
             <!-- Right Column -->
             <div class="md:w-1/3 space-y-8">
-                <div class="bg-white rounded-lg shadow-md p-6 font-['Poppins'] transition-all duration-300 ease-in-out transform hover:scale-105">
+                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-105">
                     <h2 class="text-2xl font-bold mb-4">Order Details</h2>
                     <div class="space-y-2">
                         {% for product in cart_products %}
@@ -99,7 +117,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 font-['Poppins'] ease-in-out transform hover:scale-105">
+                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-105">
                     <h2 class="text-2xl font-bold mb-4">Payment Options</h2>
                     <div class="space-y-4">
                         <div x-data="{ open: false }" class="border rounded">
@@ -112,38 +130,132 @@
                             </div>
                         </div>
                         <!-- Add more payment options here -->
+                         <div class="space-y-4">
+                        <div x-data="{ open: false }" class="border rounded">
+                            <button @click="open = !open" class="flex justify-between items-center w-full px-4 py-2 text-left">
+                                <span>Paypal Payment</span>
+                                <svg :class="{'rotate-180': open}" class="w-5 h-5 transition-transform duration-200" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div x-show="open" class="px-4 py-2 text-sm text-gray-700">
+                                Make your payment through your Paypal account. Please use your Order ID as the payment reference. Your order won't be shipped until the funds have cleared in our account.
+                            </div>
+                        </div>
+
+
+                              <div class="space-y-4">
+                        <div x-data="{ open: false }" class="border rounded">
+                            <button @click="open = !open" class="flex justify-between items-center w-full px-4 py-2 text-left">
+                                <span>CinetPay Payment</span>
+                                <svg :class="{'rotate-180': open}" class="w-5 h-5 transition-transform duration-200" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div x-show="open" class="px-4 py-2 text-sm text-gray-700">
+                                Make your payment through mobile money, Orange Money, Ecobank, Express Exchange. Please use your Order ID as the payment reference. Your order won't be shipped until the funds have cleared in our account.
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
+<br><br>
 <script>
 document.addEventListener('DOMContentLoaded', (event) => {
-    gsap.from(".bg-white", {
-        duration: 1,
-        y: 50,
+    // Initialize phone input with user's phone number
+    var input = document.querySelector("#phone");
+    var iti = window.intlTelInput(input, {
+        // options
+    });
+
+    {% if shipping_user.shipping_phone %}
+    // Set the user's phone number if available
+    iti.setNumber("{{ shipping_user.shipping_phone }}");
+    {% endif %}
+
+    // Initialize country select with user's country
+    var countrySelect = $("#country");
+    countrySelect.countrySelect({
+        preferredCountries: ['fr', 'de', 'us', 'gb']
+    });
+
+    {% if shipping_user.shipping_country %}
+    // Set the user's country if available
+    countrySelect.countrySelect("selectCountry", "{{ shipping_user.shipping_country }}");
+    {% endif %}
+
+    // Animate the left column
+    gsap.from(".md\\:w-2/3 .bg-white", {
+        duration: 0.8,
+        x: -50,
         opacity: 0,
         stagger: 0.2,
-        ease: "power3.out"
+        ease: "back.out(1.2)",
+        clearProps: "all"
+    });
+
+    // Animate the right column
+    gsap.from(".md\\:w-1/3 .bg-white", {
+        duration: 0.8,
+        x: 50,
+        opacity: 0,
+        stagger: 0.2,
+        delay: 0.3,
+        ease: "back.out(1.2)",
+        clearProps: "all"
+    });
+
+    // Animate the headings with a slight bounce
+    gsap.from("h2", {
+        duration: 0.6,
+        y: -20,
+        opacity: 0,
+        stagger: 0.1,
+        delay: 0.5,
+        ease: "elastic.out(1, 0.5)",
+        clearProps: "all"
+    });
+
+    // Subtle fade-in for form elements
+    gsap.from("form .flex.flex-col", {
+        duration: 0.5,
+        y: 10,
+        opacity: 0,
+        stagger: 0.05,
+        delay: 0.7,
+        ease: "power2.out",
+        clearProps: "all"
+    });
+
+    // Animate the order details with a slight scale
+    gsap.from(".order-details div", {
+        duration: 0.4,
+        scale: 0.95,
+        opacity: 0,
+        stagger: 0.05,
+        delay: 0.9,
+        ease: "power1.out",
+        clearProps: "all"
+    });
+
+    // Button hover animation
+    gsap.utils.toArray("button, .bg-blue-600, .bg-green-500").forEach(button => {
+        button.addEventListener("mouseenter", () => {
+            gsap.to(button, {
+                scale: 1.05,
+                duration: 0.2,
+                ease: "power1.out"
+            });
+        });
+
+        button.addEventListener("mouseleave", () => {
+            gsap.to(button, {
+                scale: 1,
+                duration: 0.2,
+                ease: "power1.in"
+            });
+        });
     });
 });
 </script>
-
-
-<script>
-    var input = document.querySelector("#phone");
-    window.intlTelInput(input, {
-        // options
-    });
-</script>
-
-
-<script>
-    $("#country").countrySelect({
-        preferredCountries: ['fr', 'de', 'us', 'gb'] // Countries that appear at the top of the list
-    });
-</script>
-
 {% endblock %}

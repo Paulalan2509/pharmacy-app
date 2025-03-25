@@ -1,7 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="bg-gray-100  py-3">
-    <div class="container mx-auto font-['Nunito'] px-4">
+
+<style>
+        /* Custom animation for status banner */
+        @keyframes statusFade {
+            0% { opacity: 0; transform: translateX(-10px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        body {
+        font-family: 'Roboto Serif', serif;
+
+        }
+
+        .status-banner {
+            animation: statusFade 0.3s ease-out forwards;
+        }
+    </style>
+<div class="bg-gray-100 py-3">
+    <div class="container mx-auto px-4">
         <div class="text-m">
             <a href="{% url 'home' %}" class="text-gray-900 font-semibold hover:text-blue-600">Home</a>
             <span class="mx-2 text-gray-500">/</span>
@@ -11,134 +28,194 @@
 </div>
 <div class="py-12">
     <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row gap-8">
+            <div class="flex flex-col md:flex-row gap-8">
 
-            <!-- Sidebar Filter -->
-<div class=" left-0 top-0 h-screen w-90 bg-white shadow-lg border-r border-gray-100 p-6 overflow-y-auto">
-    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Filters</h2>
+                <!-- Sidebar Filter -->
+            <div class=" left-0 top-0 h-screen w-90 bg-white shadow-lg border-r border-gray-100 p-6 overflow-y-auto">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-6">Filters</h2>
 
-    <form id="filterForm" method="GET" class="space-y-6">
-        <!-- Sort Options -->
-        <div class="space-y-2">
-            <label class="text-m font-medium text-gray-900">Sort By</label>
-            <select name="sort" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="this.form.submit()">
-                <option value="">Select Option</option>
-                <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-                <option value="name_asc" {% if request.GET.sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
-                <option value="name_desc" {% if request.GET.sort == 'name_desc' %}selected{% endif %}>Name: Z to A</option>
-            </select>
-        </div>
+                <form id="filterForm" method="GET" class="space-y-6">
 
-        <!-- Price Range Filter -->
-        <div class="space-y-2">
-            <label class="text-m font-medium text-gray-900">Price Range</label>
-            <div class="flex gap-3">
-                <input type="number" name="min_price" placeholder="Min" value="{{ request.GET.min_price }}"
-                       class="w-1/2 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <input type="number" name="max_price" placeholder="Max" value="{{ request.GET.max_price }}"
-                       class="w-1/2 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <!-- Sort Options -->
+                        <div class="space-y-2">
+                            <label class="text-m font-medium text-gray-900">Sort By</label>
+                            <select name="sort" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="this.form.submit()">
+                                <option value="">Select Option</option>
+                                <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                                <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                                <option value="name_asc" {% if request.GET.sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+                                <option value="name_desc" {% if request.GET.sort == 'name_desc' %}selected{% endif %}>Name: Z to A</option>
+                            </select>
+                        </div>
+
+                        <!-- Price Range Filter -->
+                        <div class="space-y-2">
+                            <label class="text-m font-medium text-gray-900">Price Range</label>
+                            <div class="flex gap-3">
+                                <input type="number" name="min_price" placeholder="Min" value="{{ request.GET.min_price }}"
+                                       class="w-1/2 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input type="number" name="max_price" placeholder="Max" value="{{ request.GET.max_price }}"
+                                       class="w-1/2 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                            <!-- Sale Items Filter -->
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" name="on_sale" value="1"
+                                       class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                       {% if request.GET.on_sale %}checked{% endif %}>
+                                <label class="text-m text-gray-900">Show Sale Items Only</label>
+                            </div>
+
+                                <!-- Category Filter -->
+                                <div class="space-y-2">
+                                    <label class="text-m text-gray-900">Categories</label>
+                                    <div class="space-y-2">
+
+                                        {% for category in categories %}
+
+                                        <label class="flex items-center gap-3">
+                                            <input type="checkbox" name="category" value="{{ category.id }}"
+                                                   class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-900">{{ category.name }}</span>
+                                        </label>
+
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-3 pt-4">
+                                    <button type="submit"
+                                            class="flex-1 bg-blue-600 text-white px-4 py-1 rounded-lg text-sm font-medium transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                        Apply Filters
+                                    </button>
+                                    <a href="{% url 'pharmacy' %}"
+                                       class="flex-1 bg-gray-100 text-gray-900 px-2 py-2 rounded-lg text-m text-center font-medium transition-all hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                                        Reset
+                                    </a>
+                                </div>
+                </form>
             </div>
-        </div>
 
-        <!-- Sale Items Filter -->
-        <div class="flex items-center gap-3">
-            <input type="checkbox" name="on_sale" value="1"
-                   class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                   {% if request.GET.on_sale %}checked{% endif %}>
-            <label class="text-m text-gray-900">Show Sale Items Only</label>
-        </div>
+                    <!-- Product Grid -->
+                    <div class="flex-1">
+                       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                             {% for product in page_obj %}
+                                <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
+                                    <div class="relative h-64 aspect-[4/3] overflow-hidden group flex justify-center items-center">
+                                        <img class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
+                                             src="{{ product.image.url }}" alt="{{ product.name }}">
+                                        {% if product.is_sale %}
+                                        <div class="absolute top-4 left-0 bg-gradient-to-r from-red-600 to-red-500 text-white px-4 py-1.5 rounded-r-full shadow-md">
+                                            Sale
+                                        </div>
+                                        {% endif %}
 
-        <!-- Category Filter -->
-        <div class="space-y-2">
-            <label class="text-m text-gray-900">Categories</label>
-            <div class="space-y-2">
+                                       {% if product.availability_status == 'In Stock' %}
+                                        <div class="status-banner absolute top-4 left-0 flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-1.5 rounded-r-full shadow-md group transition-all duration-300 hover:translate-x-1">
+                                            <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                                            <span class="text-sm font-medium text-white tracking-wide">{{ product.availability_status }}</span>
+                                        </div>
+                                        {% elif product.availability_status == 'Out of Stock' %}
+                                        <div class="status-banner absolute top-4 left-0 flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-500 px-4 py-1.5 rounded-r-full shadow-md group transition-all duration-300 hover:translate-x-1">
+                                            <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                                            <span class="text-sm font-medium text-white tracking-wide">{{ product.availability_status }}</span>
+                                        </div>
+                                        {% else %}
+                                        <div class="status-banner absolute top-4 left-0 flex items-center gap-2 bg-gradient-to-r from-rose-600 to-rose-500 px-4 py-1.5 rounded-r-full shadow-md group transition-all duration-300 hover:translate-x-1">
+                                            <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                                            <span class="text-sm font-medium text-white tracking-wide">{{ product.availability_status }}</span>
+                                        </div>
 
-                {% for category in categories %}
+                                        {% endif %}
+                                    </div>
 
-                <label class="flex items-center gap-3">
-                    <input type="checkbox" name="category" value="{{ category.id }}"
-                           class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    <span class="text-sm text-gray-900">{{ category.name }}</span>
-                </label>
+                                    <div class="p-6">
+                                        <h3 class="text-lg font-semibold text-center text-gray-800 mb-3 truncate">{{ product.name }}</h3>
 
-                {% endfor %}
+                                        {% if product.is_sale %}
+                                        <div class="flex justify-center gap-1 text-yellow-400 mb-3">
+                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                            </svg>
+                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                            </svg>
+                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                            </svg>
+                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                            </svg>
+                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                            </svg>
+                                        </div>
 
-            </div>
-        </div>
+                                        <div class="flex items-baseline gap-2 mb-4">
+                                        <span class="text-gray-400 text-sm line-through">{{ product.price }} FCFA</span>
+                                        <span class="text-red-600 font-semibold text-lg">{{ product.sale_price }} FCFA</span>
+                                        </div>
 
-        <div class="flex gap-3 pt-4">
-            <button type="submit"
-                    class="flex-1 bg-blue-600 text-white px-4 py-1 rounded-lg text-sm font-medium transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                Apply Filters
-            </button>
-            <a href="{% url 'pharmacy' %}"
-               class="flex-1 bg-gray-100 text-gray-900 px-2 py-2 rounded-lg text-m text-center font-medium transition-all hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                Reset
-            </a>
-        </div>
-    </form>
-</div>
+                                        {% else %}
+                                       <p class="text-gray-800 font-semibold text-center text-lg mb-4">{{ product.price }} FCFA</p>
+                                        {% endif %}
+                                        <a href="{% url 'product' product.id %}"
+                                           class="block w-full text-center bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 hover:bg-indigo-600 hover:shadow-md active:transform active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                                            View Product
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                    </div>
 
-            <!-- Product Grid -->
-           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for product in products %}
-    <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
-        <div class="relative h-64 aspect-[4/3] overflow-hidden group flex justify-center items-center">
-            <img class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
-                 src="{{ product.image.url }}" alt="{{ product.name }}">
-            {% if product.is_sale %}
-            <div class="absolute top-4 left-0 bg-gradient-to-r from-red-600 to-red-500 text-white px-4 py-1.5 rounded-r-full shadow-md">
-                Sale
+
+                    <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="pagination justify-center mt-8">
+                <ul class="flex flex-wrap items-center gap-2">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">
+                                &laquo;
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">
+                                &raquo;
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
             {% endif %}
         </div>
-        <div class="p-6">
-            <h3 class="text-lg font-semibold text-center text-gray-800 mb-3 truncate">{{ product.name }}</h3>
-            {% if product.is_sale %}
-                            <div class="flex justify-center gap-1 text-yellow-400 mb-3">
-                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                            </div>
-
-                            <div class="flex items-baseline gap-2 mb-4">
-
-                            <span class="text-gray-400 text-sm line-through">{{ product.price }} FCFA</span>
-                            <span class="text-red-600 font-semibold text-lg">{{ product.sale_price }} FCFA</span>
-
-                            </div>
-
-                            {% else %}
-                           <p class="text-gray-800 font-semibold text-center text-lg mb-4">{{ product.price }} FCFA</p>
-                            {% endif %}
-                            <a href="{% url 'product' product.id %}"
-                               class="block w-full text-center bg-gray-900 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 hover:bg-gray-800 hover:shadow-md active:transform active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
-                                View Product
-                            </a>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-        </div>
     </div>
-
 </div>
-
+<br>
 <style>
 @keyframes fadeIn {
     from { opacity: 0; }
@@ -164,4 +241,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
 {% endblock %}

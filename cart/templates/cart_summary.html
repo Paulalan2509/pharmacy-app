@@ -1,8 +1,14 @@
 {% extends 'base.html' %}
-
 {% block content %}
+
+<style>
+    body {
+        font-family: 'Roboto Serif', serif;
+    }
+</style>
+
 <div class="bg-gray-100  py-3">
-    <div class="container mx-auto font-['Poppins'] px-4">
+    <div class="container mx-auto px-4">
         <div class="text-sm">
             <a href="{% url 'home' %}" class="text-gray-900 font-semibold hover:text-blue-600">Home</a>
             <span class="mx-2 text-gray-500">/</span>
@@ -12,7 +18,7 @@
 </div>
 
 <div class="site-section">
-    <div class="container font-['Poppins'] mx-auto px-4 py-12">
+    <div class="container mx-auto px-4 py-12">
         {% if cart_products %}
         <div class="mb-12">
             <table class="w-full">

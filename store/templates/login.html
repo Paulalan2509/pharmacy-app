@@ -6,6 +6,8 @@
     <title>Login In PharmaHope</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <!-- Add Font Awesome for social icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @keyframes gradient {
             0% {background-position: 0% 50%;}
@@ -17,6 +19,18 @@
             background-size: 200% 200%;
             animation: gradient 15s ease infinite;
         }
+        body {
+            font-family: 'Roboto Serif', serif;
+        }
+        .error-shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+            40%, 60% { transform: translate3d(3px, 0, 0); }
+        }
     </style>
 </head>
 <body class="h-full flex flex-col">
@@ -24,22 +38,59 @@
     <!-- Main content -->
     <main class="flex-grow flex items-center justify-center p-4">
         <div class="w-full max-w-md">
-            <div id="loginCard" class="bg-white  shadow-2xl rounded-lg overflow-hidden transform transition-all duration-300 ease-in-out hover:scale-105">
+            <div id="loginCard" class="bg-white shadow-2xl rounded-lg overflow-hidden transform transition-all duration-300 ease-in-out hover:scale-105">
                 <div class="animate-gradient p-6">
                     <h1 class="text-3xl font-bold text-center text-white mb-4">Welcome Back!</h1>
                 </div>
-                <form method="POST" action="{% url 'login' %}" class="px-8 pt-6 pb-8 mb-4">
+                <br>
+
+                <!-- Error Alert Section -->
+                {% if form.errors or error_message %}
+                <div id="loginError" class="mx-8 mb-4 p-4 rounded-md bg-red-50 border border-red-300 error-shake">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                There was an error with your login
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul class="list-disc pl-5 space-y-1">
+                                    {% if form.non_field_errors %}
+                                        {% for error in form.non_field_errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    {% elif error_message %}
+                                        <li>{{ error_message }}</li>
+                                    {% else %}
+                                        <li>Username or password is incorrect. Please try again.</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'login' %}" class="px-8 pb-8 mb-4">
                     {% csrf_token %}
                     <div class="mb-6">
                         <label for="username" class="block text-sm font-semibold text-gray-900 mb-2">Username</label>
-                        <input name="username" type="text" id="username" class="input-field shadow-sm rounded-md w-full px-3 py-2 border border-gray-300 bg-white text-gray-900  focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300" placeholder="Enter your Username" required>
+                        <input name="username" type="text" id="username" class="input-field shadow-sm rounded-md w-full px-3 py-2 border {% if form.username.errors %}border-red-500{% else %}border-gray-300{% endif %} bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300" placeholder="Enter your Username" required>
+                        {% if form.username.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+                        {% endif %}
                     </div>
                     <div class="mb-6">
                         <label for="password" class="block text-sm font-semibold text-gray-900 mb-2">Password</label>
-                        <input name="password" type="password" id="password" class="input-field shadow-sm rounded-md w-full px-3 py-2 border border-gray-300  bg-white  text-gray-900  focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300" placeholder="Enter your password" required>
+                        <input name="password" type="password" id="password" class="input-field shadow-sm rounded-md w-full px-3 py-2 border {% if form.password.errors %}border-red-500{% else %}border-gray-300{% endif %} bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300" placeholder="Enter your password" required>
+                        {% if form.password.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.password.errors.0 }}</p>
+                        {% endif %}
                     </div>
                     <div class="flex items-center mb-6">
-                        <input type="checkbox" id="remember" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 focus:outline-none">
+                        <input type="checkbox" name="remember" id="remember" value="on" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 focus:outline-none">
                         <label for="remember" class="ml-2 block text-sm text-gray-900">Remember me</label>
                     </div>
                     <div class="mb-6">
@@ -55,7 +106,6 @@
             </div>
         </div>
     </main>
-
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

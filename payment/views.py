@@ -6,7 +6,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from store.models import Product, Profile
 import datetime
-
+import requests
+import json
 
 # Import Some Paypal Stuff
 from django.urls import reverse
@@ -200,6 +201,73 @@ def process_order(request):
         return redirect('home')
 
 
+# def create_cinetpay_payment(request, amount, description):
+#     """
+#     Create a CinetPay payment transaction with proper authentication
+#     """
+#     transaction_id = str(uuid.uuid4())
+#
+#     # CinetPay API endpoint
+#     api_url = "https://api-checkout.cinetpay.com/v2/payment"
+#
+#     # Prepare payment data
+#     payment_data = {
+#     'apikey': settings.CINETPAY_API_KEY,
+#     'site_id': settings.CINETPAY_SITE_ID,
+#     'transaction_id': transaction_id,
+#     'amount': amount,
+#     'currency': 'XAF',
+#     'description': description,
+#     'notify_url': settings.CINETPAY_NOTIFY_URL,
+#     'return_url': settings.CINETPAY_RETURN_URL,
+#     'cancel_url': settings.CINETPAY_CANCEL_URL,
+#     'channels': 'ALL',
+#     'lang': 'fr',
+#     'metadata': 'order_tracking'
+# }
+#
+#
+#     try:
+#         # Make the API request
+#         response = requests.post(api_url, json=payment_data)
+#
+#         # Log the full response for debugging
+#         print(f"Status Code: {response.status_code}")
+#         print(f"Response Content: {response.text}")
+#
+#         # Check if request was successful
+#         if response.status_code == 200:
+#             response_data = response.json()
+#
+#             # Check if the payment URL is in the response
+#             if 'data' in response_data and 'payment_url' in response_data['data']:
+#                 return {
+#                     'success': True,
+#                     'payment_url': response_data['data']['payment_url'],
+#                     'transaction_id': transaction_id
+#                 }
+#             else:
+#                 return {
+#                     'success': False,
+#                     'error': 'Payment URL not found in response',
+#                     'response': response_data
+#                 }
+#
+#         else:
+#             return {
+#                 'success': False,
+#                 'error': f'API request failed with status code {response.status_code}',
+#                 'response': response.text
+#             }
+#
+#
+#     except Exception as e:
+#         print(f"Exception occurred: {str(e)}")
+#         return {
+#             'success': False,
+#             'error': str(e)
+#         }
+
 def billing_info(request):
     if request.POST:
         # Get the cart
@@ -214,6 +282,10 @@ def billing_info(request):
 
         # Get the host
         host = request.get_host()
+
+        # cinetpay view here
+
+
         # Create Paypal Form Dictionary
         paypal_dict = {
             'business': settings.PAYPAL_RECEIVER_EMAIL,
@@ -221,35 +293,27 @@ def billing_info(request):
             'item_name': 'Book Order',
             'no_shipping': '2',
             'invoice': str(uuid.uuid4()),
-            'currency_code': 'USD',  # EUR for Euros
+            'currency_code': 'USD',
             'notify_url': 'https://{}{}'.format(host, reverse("paypal-ipn")),
             'return_url': 'https://{}{}'.format(host, reverse("payment_success")),
             'cancel_return': 'https://{}{}'.format(host, reverse("payment_failed")),
         }
 
-        # Create acutal paypal button
+        # Create actual paypal button
         paypal_form = PayPalPaymentsForm(initial=paypal_dict)
 
         # Check to see if user is logged in
         if request.user.is_authenticated:
-            # Get The Billing Form
             billing_form = PaymentForm()
             return render(request, "payment/billing_info.html",
-                          {"paypal_form": paypal_form, "cart_products": cart_products, "quantities": quantities,
-                           "totals": totals, "shipping_info": request.POST, "billing_form": billing_form})
-
+                        {"paypal_form": paypal_form, "cart_products": cart_products, "quantities": quantities,
+                         "totals": totals, "shipping_info": request.POST, "billing_form": billing_form})
         else:
-            # Not logged in
-            # Get The Billing Form
             billing_form = PaymentForm()
             return render(request, "payment/billing_info.html",
-                          {"paypal_form": paypal_form, "cart_products": cart_products, "quantities": quantities,
-                           "totals": totals, "shipping_info": request.POST, "billing_form": billing_form})
+                        {"paypal_form": paypal_form, "cart_products": cart_products, "quantities": quantities,
+                         "totals": totals, "shipping_info": request.POST, "billing_form": billing_form})
 
-        shipping_form = request.POST
-        return render(request, "payment/billing_info.html",
-                      {"cart_products": cart_products, "quantities": quantities, "totals": totals,
-                       "shipping_form": shipping_form})
     else:
         messages.success(request, "Access Denied")
         return redirect('home')
@@ -264,20 +328,41 @@ def checkout(request):
 
     if request.user.is_authenticated:
         # Checkout as logged in user
-        # Shipping User
-        shipping_user = ShippingAddress.objects.get(user__id=request.user.id)
-        # Shipping Form
-        shipping_form = ShippingForm(request.POST or None, instance=shipping_user)
-        return render(request, "payment/checkout.html",
-                      {"cart_products": cart_products, "quantities": quantities, "totals": totals,
-                       "shipping_form": shipping_form})
+        try:
+            # Get the user's shipping address
+            shipping_user = ShippingAddress.objects.get(user=request.user)
+
+            # Create shipping form with the user's existing data
+            shipping_form = ShippingForm(instance=shipping_user)
+
+        except ShippingAddress.DoesNotExist:
+            # If ShippingAddress doesn't exist, create a new one
+            shipping_user = ShippingAddress.objects.create(user=request.user)
+            shipping_form = ShippingForm()
+            messages.warning(request,
+                             "A new shipping address has been created for you. Please update it with your information.")
+
+        context = {
+            "cart_products": cart_products,
+            "quantities": quantities,
+            "totals": totals,
+            "shipping_form": shipping_form,
+            "shipping_user": shipping_user
+        }
+
+        return render(request, "payment/checkout.html", context)
     else:
         # Checkout as guest
-        shipping_form = ShippingForm(request.POST or None)
-        return render(request, "payment/checkout.html",
-                      {"cart_products": cart_products, "quantities": quantities, "totals": totals,
-                       "shipping_form": shipping_form})
+        shipping_form = ShippingForm()
 
+        context = {
+            "cart_products": cart_products,
+            "quantities": quantities,
+            "totals": totals,
+            "shipping_form": shipping_form
+        }
+
+        return render(request, "payment/checkout.html", context)
 
 def payment_success(request):
     return render(request, "payment/payment_success.html", {})

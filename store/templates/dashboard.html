@@ -12,44 +12,42 @@
 <body class="bg-gray-100">
     <!-- Sidebar -->
     <div class="flex">
-        <aside class="w-64 h-screen bg-blue-800 text-white fixed">
+        <aside class="w-72 h-screen bg-blue-800 text-white fixed">
             <div class="p-4">
-                <h1 class="text-2xl font-bold mb-8">PharmaHope</h1>
+                <a href="http://127.0.0.1:8000/dashboard/" class="hover:text-blue-200 transition duration-200"><h1 class="text-2xl font-bold mb-8">Analytics Dashboard</h1></a>
                 <nav>
                     <ul>
                         <li class="mb-4">
-                            <a href="#dashboard" class="flex items-center p-2 hover:bg-blue-700 rounded">
-                                <i class="fas fa-home mr-3"></i> Dashboard
+                            <a href="http://127.0.0.1:8000" class="flex items-center p-2 hover:bg-blue-700 rounded transition duration-200 ease-in-out transform hover:translate-x-1">
+                                <i class="fas fa-home mr-3"></i> Home Page
                             </a>
                         </li>
+
                         <li class="mb-4">
-                            <a href="#inventory" class="flex items-center p-2 hover:bg-blue-700 rounded">
-                                <i class="fas fa-pills mr-3"></i> Inventory
+                            <a href="#reports-section" class="flex items-center p-2 hover:bg-blue-700 rounded transition duration-200 ease-in-out transform hover:translate-x-1">
+                                <i class="fas fa-chart-bar mr-3"></i> Reports
                             </a>
                         </li>
+
                         <li class="mb-4">
-                            <a href="#orders" class="flex items-center p-2 hover:bg-blue-700 rounded">
+                            <a href="#sales-section" class="flex items-center p-2 hover:bg-blue-700 rounded transition duration-200 ease-in-out transform hover:translate-x-1">
+                                <i class="fas fa-chart-line mr-3"></i> Sales
+                            </a>
+                        </li>
+
+                        <li class="mb-4">
+                            <a href="#orders-section" class="flex items-center p-2 hover:bg-blue-700 rounded transition duration-200 ease-in-out transform hover:translate-x-1">
                                 <i class="fas fa-shopping-cart mr-3"></i> Orders
                             </a>
                         </li>
                         <li class="mb-4">
-                            <a href="#customers" class="flex items-center p-2 hover:bg-blue-700 rounded">
+                            <a href="#customers-section" class="flex items-center p-2 hover:bg-blue-700 rounded transition duration-200 ease-in-out transform hover:translate-x-1">
                                 <i class="fas fa-users mr-3"></i> Customers
                             </a>
                         </li>
                         <li class="mb-4">
-                            <a href="#prescriptions" class="flex items-center p-2 hover:bg-blue-700 rounded">
+                            <a href="#prescriptions-section" class="flex items-center p-2 hover:bg-blue-700 rounded transition duration-200 ease-in-out transform hover:translate-x-1">
                                 <i class="fas fa-file-medical mr-3"></i> Prescriptions
-                            </a>
-                        </li>
-                        <li class="mb-4">
-                            <a href="#reports" class="flex items-center p-2 hover:bg-blue-700 rounded">
-                                <i class="fas fa-chart-bar mr-3"></i> Reports
-                            </a>
-                        </li>
-                        <li class="mb-4">
-                            <a href="#settings" class="flex items-center p-2 hover:bg-blue-700 rounded">
-                                <i class="fas fa-cog mr-3"></i> Settings
                             </a>
                         </li>
                     </ul>
@@ -58,208 +56,236 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="ml-64 w-full">
+        <main class="ml-72 w-full">
             <!-- Top Navigation -->
-            <nav class="bg-white p-4 shadow-md flex justify-between items-center">
-                <div class="flex items-center">
-                    <input type="text" placeholder="Search..." class="p-2 border rounded-lg w-64">
-                </div>
-                <div class="flex items-center">
-                    <span class="mr-4"><i class="fas fa-bell"></i></span>
-                    <span class="mr-4">Admin User</span>
-                    <img src="/api/placeholder/40/40" alt="Admin" class="w-8 h-8 rounded-full">
+            <nav class="bg-white p-4 m-6 shadow-md flex justify-between items-center">
+                <div class="flex items-center relative">
+                    <input type="text" placeholder="Search..." class="p-2 border rounded-lg w-64" id="searchInput">
+                    <button class="absolute right-3 text-gray-500 hover:text-blue-500" id="searchButton">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
             </nav>
 
             <!-- Dashboard Content -->
             <div class="p-6">
+                <div id="reports-section">
                <!-- Statistics Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                     <div class="bg-white p-6 rounded-lg shadow">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-gray-500">Total Orders</h3>
+                            <h3 class="text-gray-900">Total Orders</h3>
                             <i class="fas fa-shopping-bag text-blue-500"></i>
                         </div>
-                        <p class="text-2xl font-bold">1,254</p>
-                        <p class="text-green-500 text-sm">+12% from last month</p>
+                        <p class="text-2xl font-bold">0</p>
+                        <p class="text-blue-700 text-sm">No order yet</p>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-gray-500">Revenue</h3>
-                            <i class="fas fa-dollar-sign text-green-500"></i>
+                            <h3 class="text-gray-900">Revenue</h3>
+                            <i class="fas fa-money-bill text-green-500"></i>
                         </div>
-                        <p class="text-2xl font-bold">$34,245</p>
-                        <p class="text-green-500 text-sm">+8% from last month</p>
+                        <p class="text-2xl font-bold">0 FCFA</p>
+                        <p class="text-green-500 text-sm">No revenue made yet</p>
                     </div>
+
                     <div class="bg-white p-6 rounded-lg shadow">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-gray-500">Low Stock Items</h3>
-                            <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                            <h3 class="text-gray-900"> Low Stock Items</h3>
+                            <i class="fas fa-exclamation-triangle text-indigo-500"></i>
                         </div>
-                        <p class="text-2xl font-bold">23</p>
-                        <p class="text-red-500 text-sm">5 items need reorder</p>
+                        <p class="text-2xl font-bold">/</p>
+                        <p class="text-indigo-500 text-sm">Stock is high</p>
                     </div>
+
+                    <div id="prescriptions-section">
                     <div class="bg-white p-6 rounded-lg shadow">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-gray-500">Pending Prescriptions</h3>
-                            <i class="fas fa-file-medical text-red-500"></i>
+                            <h3 class="text-gray-900">Pending Prescriptions</h3>
+                            <i class="fas fa-file-medical text-yellow-500"></i>
                         </div>
-                        <p class="text-2xl font-bold">18</p>
-                        <p class="text-yellow-500 text-sm">Requires verification</p>
+                        <p class="text-2xl font-bold">0</p>
+                        <p class="text-yellow-500 text-sm">No pending prescriptions yet</p>
                     </div>
+                    </div>
+
+                </div>
                 </div>
 
-
                 <!-- Charts Section -->
+                <div id="sales-section">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <div class="bg-white p-6 rounded-lg shadow">
                         <h3 class="text-lg font-semibold mb-4">Sales Overview</h3>
                         <canvas id="salesChart" width="400" height="200"></canvas>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow">
-                        <h3 class="text-lg font-semibold mb-4">Top Selling Products</h3>
+                        <h3 class="text-lg font-semibold mb-4">Top Selling Medications</h3>
                         <canvas id="productsChart" width="400" height="200"></canvas>
                     </div>
                 </div>
-
-
-
-                <!-- Recent Orders Table -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Recent Orders</h3>
-                        {% for ORDERITEM in ORDERITEMS %}
-                        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">View All</button>
-                    </div>
-
-                    <table class="min-w-full">
-                        <thead>
-                            <tr class="bg-gray-50">
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ orderitem.id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ orderitem.user }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ order.email }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ order.amount_paid }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{{ order.shipped }}</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <button class="text-blue-600 hover:text-blue-900">View</button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            <!-- Add more rows as needed -->
-                        </tbody>
-                    </table>
                 </div>
 
 
-                <br>
-                <!-- Profiles Section -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">User Profiles</h3>
-                        <div class="flex gap-2">
-                            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                                <i class="fas fa-plus mr-2"></i>Add Profile
-                            </button>
+                <!-- Orders Section with ID for navigation -->
+                <div id="orders-section">
+                    <!-- Not Shipped Orders Table -->
+                    <div class="bg-white p-6 rounded-lg shadow mt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Not Shipped Orders</h3>
+                        </div>
 
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full" id="notShippedTable">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Email</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Ordered</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for order in not_shipped_orders %}
+                                    <tr class="searchable-row">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <a href="{% url 'orders' order.id %}" class="text-blue-600 hover:text-blue-900">{{ order.id }}</a>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ order.amount_paid }} FCFA</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ order.email }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ order.date_ordered }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <form method="POST" action="{% url 'not_shipped_dash' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="shipping_status" value="true">
+                                                <input type="hidden" name="num" value="{{ order.id }}">
+                                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-200">
+                                                    Mark Shipped
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
+                    <!-- Shipped Orders Table -->
+                    <div class="bg-white p-6 rounded-lg shadow mt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Shipped Orders</h3>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full" id="shippedTable">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Email</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Shipped</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for order in shipped_orders %}
+                                    <tr class="searchable-row">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <a href="{% url 'orders' order.id %}" class="text-blue-600 hover:text-blue-900">{{ order.id }}</a>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ order.amount_paid }} FCFA</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ order.email }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ order.date_shipped }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <form method="POST" action="{% url 'shipped_dash' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="shipping_status" value="false">
+                                                <input type="hidden" name="num" value="{{ order.id }}">
+                                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-200">
+                                                    Mark Unshipped
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Customer/User Section -->
+                <div id="customers-section">
+                <div class="bg-white p-6 rounded-lg shadow mt-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Customers</h3>
+                    </div>
+
                     <div class="overflow-x-auto">
-                        <table class="min-w-full">
+                        <table class="min-w-full" id="customersTable">
                             <thead>
                                 <tr class="bg-gray-50">
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profile Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        <div class="flex items-center">
-                                            Profile ID
-                                            <i class="fas fa-sort ml-2"></i>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        <div class="flex items-center">
-                                            Active Status
-                                            <i class="fas fa-sort ml-2"></i>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        <div class="flex items-center">
-                                            Admin Access
-                                            <i class="fas fa-sort ml-2"></i>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">First Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone Number</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                            {% for profile in profiles %}
-                                <tr class="hover:bg-gray-50">
+                            <tbody class="bg-white divide-y divide-gray-200" id="customersTableBody">
+                                {% for customer in Customers %}
+                                <tr class="searchable-row">
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <img src="{{ profile.image }" alt="Profile" class="w-8 h-8 rounded-full mr-3">
-                                            <span class="font-medium text-gray-900">{{ profile.user }}</span>
-                                        </div>
+                                        <a href="{% url 'customers' customer.first_name %}" class="text-blue-600 hover:text-blue-900">{{ customer.first_name }}</a>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ profile.id }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{{ profile.user.is_active }}</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{{ profile.user.is_superuser }}</span>
-                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ customer.address }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ customer.email }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ customer.phone_number }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                        <button class="text-blue-600 hover:text-blue-900 mr-3">
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3 transition duration-200">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="text-red-600 hover:text-red-900">
+                                        <button class="text-red-600 hover:text-red-900 transition duration-200">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>
                                 </tr>
-
-                              {% endfor %}
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
-
+                </div>
+            </div>
+<br>
                     <!-- Pagination -->
-                    <div class="flex items-center justify-between mt-4">
+                    <div class="flex items-center justify-between mt-4" id="paginationContainer">
                         <div class="flex items-center text-sm text-gray-500">
-                            Showing <span class="font-medium mx-1">1</span> to <span class="font-medium mx-1">2</span> of <span class="font-medium mx-1">2</span> entries
+                            Showing <span class="font-medium mx-1" id="currentItemsShown">1</span>to <span class="font-medium mx-1" id="totalItemsShown">10</span> of <span class="font-medium mx-1" id="totalItems">0</span> entries
                         </div>
-                        <div class="flex gap-2">
-                            <button class="px-3 py-1 border rounded text-sm disabled:opacity-50">Previous</button>
-                            <button class="px-3 py-1 bg-blue-500 text-white rounded text-sm">1</button>
-                            <button class="px-3 py-1 border rounded text-sm disabled:opacity-50">Next</button>
+                        <div class="flex gap-2" id="paginationButtons">
+                            <button class="px-3 py-1 border rounded text-sm disabled:opacity-50 hover:bg-gray-100 transition duration-200" id="prevButton">Previous</button>
+                            <div id="pageNumbers" class="flex gap-2">
+                                <!-- Page numbers will be inserted here by JavaScript -->
+                            </div>
+                            <button class="px-3 py-1 border rounded text-sm disabled:opacity-50 hover:bg-gray-100 transition duration-200" id="nextButton">Next</button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
-    </div>
+            </main>
+        </div>
 
-    <!-- ... (Previous JavaScript remains the same) ... -->
 <script>
         // Sales Chart
         const salesCtx = document.getElementById('salesChart').getContext('2d');
         new Chart(salesCtx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                labels: ['March', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
                 datasets: [{
-                    label: 'Sales ($)',
-                    data: [12000, 19000, 15000, 25000, 22000, 30000],
+                    label: 'Sales (FCFA)',
+                    data: [0, 0, 0, 0, 0, 0],
                     borderColor: 'rgb(59, 130, 246)',
                     tension: 0.1
                 }]
@@ -281,8 +307,8 @@
             data: {
                 labels: ['Product A', 'Product B', 'Product C', 'Product D', 'Product E'],
                 datasets: [{
-                    label: 'Units Sold',
-                    data: [120, 90, 80, 70, 60],
+                    label: 'Quantity Sold',
+                    data: [0, 0, 0, 0, 0],
                     backgroundColor: 'rgba(59, 130, 246, 0.5)'
                 }]
             },
@@ -294,6 +320,157 @@
                     }
                 }
             }
+        });
+
+        // Add smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Search functionality
+        document.getElementById('searchButton').addEventListener('click', performSearch);
+        document.getElementById('searchInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.searchable-row');
+
+            rows.forEach(row => {
+                const textContent = row.textContent.toLowerCase();
+                if (textContent.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Reset pagination after search
+            initPagination();
+        }
+
+        // Pagination functionality
+        let currentPage = 1;
+        const itemsPerPage = 5;
+        let totalPages = 1;
+        let currentTable = 'customersTable';
+
+        function initPagination() {
+            const table = document.getElementById(currentTable);
+            if (!table) return;
+
+            const rows = Array.from(table.querySelectorAll('tbody tr')).filter(row => row.style.display !== 'none');
+            totalPages = Math.ceil(rows.length / itemsPerPage);
+
+            // Update pagination info
+            document.getElementById('totalItems').textContent = rows.length;
+
+            // Generate page numbers
+            const pageNumbersContainer = document.getElementById('pageNumbers');
+            pageNumbersContainer.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.className = i === currentPage ?
+                    'px-3 py-1 bg-blue-500 text-white rounded text-sm' :
+                    'px-3 py-1 bg-gray-200 text-black rounded text-sm hover:bg-gray-300 transition duration-200';
+                pageButton.addEventListener('click', () => goToPage(i));
+                pageNumbersContainer.appendChild(pageButton);
+            }
+
+            // Update button states
+            document.getElementById('prevButton').disabled = currentPage === 1;
+            document.getElementById('nextButton').disabled = currentPage === totalPages || totalPages === 0;
+
+            // Show current page
+            displayPage(currentPage);
+        }
+
+        function displayPage(page) {
+            const table = document.getElementById(currentTable);
+            if (!table) return;
+
+            const rows = Array.from(table.querySelectorAll('tbody tr')).filter(row => row.style.display !== 'none');
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+
+            rows.forEach((row, index) => {
+                if (index >= startIndex && index < endIndex) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Update pagination info
+            document.getElementById('currentItemsShown').textContent = rows.length > 0 ? startIndex + 1 : 0;
+            document.getElementById('totalItemsShown').textContent = Math.min(endIndex, rows.length);
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            initPagination();
+        }
+
+        document.getElementById('prevButton').addEventListener('click', () => {
+            if (currentPage > 1) {
+                goToPage(currentPage - 1);
+            }
+        });
+
+        document.getElementById('nextButton').addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                goToPage(currentPage + 1);
+            }
+        });
+
+        // Add table selection functionality for pagination
+        function setupTableNav() {
+            const tables = ['customersTable', 'shippedTable', 'notShippedTable'];
+
+            // Check which table is currently visible based on scrolling
+            window.addEventListener('scroll', () => {
+                let visibleTable = currentTable;
+
+                for (const tableId of tables) {
+                    const table = document.getElementById(tableId);
+                    if (table) {
+                        const rect = table.getBoundingClientRect();
+                        if (rect.top < window.innerHeight && rect.bottom > 0) {
+                            visibleTable = tableId;
+                            break;
+                        }
+                    }
+                }
+
+                if (visibleTable !== currentTable) {
+                    currentTable = visibleTable;
+                    currentPage = 1;
+                    initPagination();
+                }
+            });
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            setupTableNav();
+            initPagination();
         });
     </script>
 </body>

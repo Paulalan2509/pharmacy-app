@@ -2,10 +2,10 @@
 {% block content %}
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 
     body {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Roboto Serif', serif;
         overflow-x: hidden;
     }
 
@@ -66,19 +66,19 @@
         <div class="absolute inset-0 hero-overlay"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 z-10">
             <div class="text-center text-white max-w-4xl mx-auto" data-aos="fade-up">
-                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">Votre santé,
-                    <span class="text-blue-400">Notre priorité</span>
+                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">Your health,
+                    <span class="text-blue-400">Our priority</span>
                 </h1>
-                <p class="text-lg sm:text-xl lg:text-2xl mb-8 text-gray-200 leading-relaxed">Faites l'expérience de soins pharmaceutiques exceptionnels avec PharmaHope, où votre bien-être passe avant tout.</p>
+                <p class="text-lg sm:text-xl lg:text-2xl mb-8 text-gray-200 leading-relaxed">Experience exceptional pharmaceutical care with PharmaHope, where your well-being comes first.</p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
                     <a href="{% url 'about' %}" class="inline-flex items-center justify-center bg-blue-600 text-white font-semibold px-8 py-4 rounded-lg transition duration-300 hover:bg-blue-700 hover:scale-105 transform">
-                        <span>À propos de nous</span>
+                        <span>About Us</span>
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                         </svg>
                     </a>
-                    <a href="{% url 'contact' %}" class="inline-flex items-center justify-center bg-white/10 backdrop-blur-md text-white font-semibold px-8 py-4 rounded-lg transition duration-300 hover:bg-white/20 border border-white/30">
-                        Contactez-nous
+                    <a href="{% url 'pharmacy' %}" class="inline-flex items-center justify-center bg-white/10 backdrop-blur-md text-white font-semibold px-8 py-4 rounded-lg transition duration-300 hover:bg-white/30 border border-white/30">
+                        Visit Our Store
                     </a>
                 </div>
             </div>
@@ -93,15 +93,15 @@
 <!-- Services Section -->
 <section id="services" class="py-24 px-4">
     <div class="container mx-auto max-w-7xl">
-        <h2 class="text-4xl lg:text-5xl font-bold text-center mb-16 gradient-text" data-aos="fade-up">Nos prestations</h2>
+        <h2 class="text-4xl lg:text-5xl font-bold text-center mb-16 gradient-text" data-aos="fade-up">Our Services</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <!-- Service Card 1 -->
             <div class="service-card bg-white p-8 rounded-2xl" >
                 <div class="bg-blue-50 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
                     <i class="fas fa-pills text-blue-600 text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-4">Services de prescription</h3>
-                <p class="text-gray-600 leading-relaxed">Exécution des ordonnances rapide, précise et confidentielle avec consultation d'un pharmacien expert.</p>
+                <h3 class="text-xl font-semibold mb-4">Prescription Services</h3>
+                <p class="text-gray-600 leading-relaxed">Fast, accurate, and confidential prescription fulfillment with consultation from an expert pharmacist.</p>
             </div>
 
             <!-- Service Card 2 -->
@@ -109,8 +109,8 @@
                 <div class="bg-blue-50 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
                     <i class="fas fa-hand-holding-medical text-blue-600 text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-4">Conseils personnalisés</h3>
-                <p class="text-gray-600 leading-relaxed">Consultation individuelle avec nos pharmaciens pour des conseils adaptés à vos besoins spécifiques.</p>
+                <h3 class="text-xl font-semibold mb-4">Personalized Advice</h3>
+                <p class="text-gray-600 leading-relaxed">One-on-one consultation with our pharmacists for advice tailored to your specific needs.</p>
             </div>
 
             <!-- Service Card 3 -->
@@ -118,8 +118,8 @@
                 <div class="bg-blue-50 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
                     <i class="fas fa-truck text-blue-600 text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-4">Livraison à domicile</h3>
-                <p class="text-gray-600 leading-relaxed">Service de livraison rapide et sécurisé de vos médicaments directement à votre porte.</p>
+                <h3 class="text-xl font-semibold mb-4">Home Delivery</h3>
+                <p class="text-gray-600 leading-relaxed">Fast and secure delivery service for your medications directly to your doorstep.</p>
             </div>
 
             <!-- Service Card 4 -->
@@ -127,8 +127,8 @@
                 <div class="bg-blue-50 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
                     <i class="fas fa-heartbeat text-blue-600 text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-4">Suivi santé</h3>
-                <p class="text-gray-600 leading-relaxed">Programmes de suivi personnalisés pour la gestion des maladies chroniques et le bien-être général.</p>
+                <h3 class="text-xl font-semibold mb-4">Health Monitoring</h3>
+                <p class="text-gray-600 leading-relaxed">Personalized monitoring programs for managing chronic diseases and overall well-being.</p>
             </div>
 
             <!-- Service Card 5 -->
@@ -136,8 +136,8 @@
                 <div class="bg-blue-50 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
                     <i class="fas fa-calendar-check text-blue-600 text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-4">Rappel médicaments</h3>
-                <p class="text-gray-600 leading-relaxed">Service de rappel automatique pour le renouvellement de vos ordonnances et suivis de traitement.</p>
+                <h3 class="text-xl font-semibold mb-4">Medication Reminders</h3>
+                <p class="text-gray-600 leading-relaxed">Automatic reminder service for prescription renewals and treatment follow-ups.</p>
             </div>
 
             <!-- Service Card 6 -->
@@ -145,8 +145,8 @@
                 <div class="bg-blue-50 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
                     <i class="fas fa-clipboard-check text-blue-600 text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-4">Bilan médicamenteux</h3>
-                <p class="text-gray-600 leading-relaxed">Analyse complète de vos médicaments pour optimiser votre traitement et éviter les interactions.</p>
+                <h3 class="text-xl font-semibold mb-4">Medication Review</h3>
+                <p class="text-gray-600 leading-relaxed">Comprehensive analysis of your medications to optimize your treatment and prevent interactions.</p>
             </div>
         </div>
     </div>
@@ -157,26 +157,26 @@
         <div class="container mx-auto max-w-7xl px-4">
             <div class="flex flex-col lg:flex-row items-center gap-16">
                 <div class="lg:w-1/2" data-aos="fade-right">
-                    <h2 class="text-4xl lg:text-5xl font-bold mb-8 gradient-text">Notre Marque de Fabrique</h2>
-                    <p class="text-gray-700 text-lg leading-relaxed mb-8">Avec plus de 30 ans d'expérience, nous nous engageons à offrir des soins pharmaceutiques de la plus haute qualité à notre communauté.</p>
+                    <h2 class="text-4xl lg:text-5xl font-bold mb-8 gradient-text">Our Trademark</h2>
+                    <p class="text-gray-700 text-lg leading-relaxed mb-8">With over 15 years of experience, we are committed to providing the highest quality pharmaceutical care to our community.</p>
                     <ul class="space-y-6">
                         <li class="flex items-center gap-4">
                             <div class="bg-green-100 p-2 rounded-full">
                                 <i class="fas fa-check text-green-600"></i>
                             </div>
-                            <span class="text-gray-700">Pharmaciens agréés et expérimentés</span>
+                            <span class="text-gray-700">Licensed and Experienced Pharmacists</span>
                         </li>
                         <li class="flex items-center gap-4">
                             <div class="bg-green-100 p-2 rounded-full">
                                 <i class="fas fa-check text-green-600"></i>
                             </div>
-                            <span class="text-gray-700">Large gamme de produits de santé</span>
+                            <span class="text-gray-700">Wide Range of Health Products</span>
                         </li>
                         <li class="flex items-center gap-4">
                             <div class="bg-green-100 p-2 rounded-full">
                                 <i class="fas fa-check text-green-600"></i>
                             </div>
-                            <span class="text-gray-700">Prix compétitif</span>
+                            <span class="text-gray-700">Competitive Pricing</span>
                         </li>
                         <!-- Similar updates for other list items -->
                     </ul>
@@ -184,7 +184,7 @@
                 <div class="lg:w-1/2" data-aos="fade-left">
                     <div class="relative">
                         <div class="absolute -inset-4 bg-blue-600/10 rounded-2xl transform -rotate-6"></div>
-                        <img src="/media/uploads/socials/about2.png" alt="About PharmaHope" class="relative rounded-2xl shadow-xl">
+                        <img src="/media/male-working-as-paediatrician.jpg" alt="About PharmaHope" class="relative rounded-2xl shadow-xl">
                     </div>
                 </div>
             </div>
@@ -194,11 +194,11 @@
     <!-- Testimonials Section -->
     <section id="testimonials" class="py-24">
         <div class="container mx-auto max-w-7xl px-4">
-            <h2 class="text-4xl lg:text-5xl font-bold text-center mb-16 gradient-text" data-aos="fade-up">Témoignages clients</h2>
+            <h2 class="text-4xl lg:text-5xl font-bold text-center mb-16 gradient-text" data-aos="fade-up">Testimonials</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div class="testimonial-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl" data-aos="fade-up">
                     <div class="flex items-center gap-4 mb-6">
-                        <img src="/media/uploads/socials/pic1.png" alt="Customer" class="w-16 h-16 rounded-full ring-4 ring-blue-50">
+                        <img src="/media/uploads/socials/metis 1.avif" alt="Customer" class="w-16 h-16 rounded-full ring-4 ring-blue-50">
                         <div>
                             <h3 class="font-semibold text-lg">Sarah Mayer</h3>
                             <div class="flex gap-1 text-yellow-400">
@@ -206,17 +206,17 @@
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star text-gray-300"></i>
                             </div>
                         </div>
                     </div>
-                    <p class="text-gray-600 leading-relaxed">"Excellent service du début à la fin ! PharmaHope me permet de trouver facilement ce que je recherche et la livraison est toujours rapide."</p>
+                    <p class="text-gray-600 leading-relaxed">Excellent service from start to finish! PharmaHope makes it easy for me to find what I’m looking for, and delivery is always fast. The customer service team is incredibly helpful whenever I have questions.</p>
                 </div>
 
 
                 <div class="testimonial-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl" data-aos="fade-up">
                     <div class="flex items-center gap-4 mb-6">
-                        <img src="/media/uploads/socials/pic3.png" alt="Customer" class="w-16 h-16 rounded-full ring-4 ring-blue-50">
+                        <img src="/media/uploads/socials/lady.avif" alt="Customer" class="w-16 h-16 rounded-full ring-4 ring-blue-50">
                         <div>
                             <h3 class="font-semibold text-lg">Madeleine</h3>
                             <div class="flex gap-1 text-yellow-400">
@@ -228,14 +228,14 @@
                             </div>
                         </div>
                     </div>
-                    <p class="text-gray-600 leading-relaxed">"Service exceptionnel! Le personnel est compétent et fait toujours l'impossible pour vous aider. Je ne confierais à personne d’autre les besoins de santé de ma famille."</p>
+                    <p class="text-gray-600 leading-relaxed">Exceptional service! The staff is knowledgeable and always goes above and beyond to help. I wouldn’t trust anyone else with my family’s healthcare needs.</p>
                 </div>
 
 
 
                 <div class="testimonial-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl" data-aos="fade-up">
                     <div class="flex items-center gap-4 mb-6">
-                        <img src="/media/uploads/socials/pic2.png" alt="Customer" class="w-16 h-16 rounded-full ring-4 ring-blue-50">
+                        <img src="/media/uploads/socials/man.avif" alt="Customer" class="w-16 h-16 rounded-full ring-4 ring-blue-50">
                         <div>
                             <h3 class="font-semibold text-lg">John Durell</h3>
                             <div class="flex gap-1 text-yellow-400">
@@ -247,7 +247,7 @@
                             </div>
                         </div>
                     </div>
-                    <p class="text-gray-600 leading-relaxed">"PharmaHope a été une bouée de sauvetage pour moi ! Le processus de commande est simple et la livraison est toujours à temps. J'aime à quel point il est facile de trouver ce dont j'ai besoin et l'équipe du service client est incroyablement utile chaque fois que j'ai des questions."</p>
+                    <p class="text-gray-600 leading-relaxed">PharmaHope has been a lifesaver for me! The ordering process is simple, and delivery is always on time. I love how easy it is to find what I need</p>
                 </div>
                 <!-- Similar updates for other testimonial cards -->
             </div>
@@ -255,7 +255,7 @@
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="py-24 bg-gradient-to-br from-blue-600 to-blue-800 relative">
+    <section id="contact" class="py-24 bg-gradient-to-br from-blue-400 via-blue-700 to-blue-500  relative">
         <div class="container mx-auto max-w-7xl px-4">
             <h2 class="text-4xl lg:text-5xl font-bold text-center mb-16 text-white" data-aos="fade-up">Get in Touch</h2>
             <div class="flex flex-col lg:flex-row gap-16">
@@ -273,13 +273,13 @@
                 </div>
                 <div class="lg:w-1/2" data-aos="fade-left">
                     <div class="space-y-8">
-                        <div class="flex items-center gap-6 bg-white/10 p-6 rounded-lg backdrop-blur-md">
+                        <div class="flex items-center gap-6 bg-white/80 p-6 rounded-lg backdrop-blur-md">
                             <div class="bg-white/20 p-4 rounded-full">
-                                <i class="fas fa-map-marker-alt text-white text-2xl"></i>
+                                <i class="fas fa-map-marker-alt text-blue-700 text-2xl"></i>
                             </div>
                             <div>
-                                <h3 class="font-semibold text-xl text-white mb-2">Visit Us</h3>
-                                <p class="text-blue-100">123 Health Street, Medical District, City, 12345</p>
+                                <h3 class="font-semibold text-xl gradient-text mb-2">Visit Us</h3>
+                                <p class="gradient-text">123 Health Street, Medical District, City, 12345</p>
                             </div>
                         </div>
                         <!-- Similar updates for other contact info cards -->

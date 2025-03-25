@@ -6,7 +6,14 @@
 {% endblock %}
 
 {% block content %}
-<div class="bg-gray-100 min-h-screen font-['Poppins']" x-data="{ showBillingDetails: false }">
+
+<style>
+  body {
+        font-family: 'Roboto Serif', serif;
+  }
+</style>
+
+<div class="bg-gray-100 min-h-screen " x-data="{ showBillingDetails: false }">
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-4xl font-bold mb-8 text-center text-gray-800">Billing Info</h1>
         <p class="text-xl text-center text-gray-600 mb-8">Enter Your Payment Info...</p>
@@ -101,7 +108,29 @@
                     </div>
                 </div>
 
-
+<!--                &lt;!&ndash; CinetPay Payment &ndash;&gt;-->
+<!--                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-105">-->
+<!--                    <h2 class="text-2xl font-bold mb-4">CinetPay Payment</h2>-->
+<!--                    <div class="flex flex-col items-center space-y-4">-->
+<!--                        {% if cinetpay_payment_url %}-->
+<!--                            <p class="text-gray-600 text-center mb-4">-->
+<!--                                Pay securely using CinetPay - Supporting Mobile Money, Card Payments and More-->
+<!--                            </p>-->
+<!--                            <a href="{{ cinetpay_payment_url }}"-->
+<!--                               class="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors duration-200 text-center w-full md:w-auto">-->
+<!--                                Pay with CinetPay-->
+<!--                            </a>-->
+<!--                        {% else %}-->
+<!--                            <p class="text-red-500 text-center">-->
+<!--                                CinetPay payment initialization failed. Please try again or choose another payment method.-->
+<!--                            </p>-->
+<!--                            <button onclick="window.location.reload()"-->
+<!--                                    class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200">-->
+<!--                                Try Again-->
+<!--                            </button>-->
+<!--                        {% endif %}-->
+<!--                    </div>-->
+<!--                </div>-->
 
                 <!-- Billing Info Card -->
                 <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-105">
@@ -160,7 +189,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
         y: 50,
         opacity: 0,
         stagger: 0.2,
-        ease: "power3.out"
+        ease: "power3.out",
+        onComplete: () => {
+                gsap.to(".bg-white", { clearProps: "all" });
+            }
+        });
     });
 });
 </script>

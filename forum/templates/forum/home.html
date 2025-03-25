@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ forum_title|default:"PharmaHope Forum" }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+</head>
+
+<style>
+    body {
+        font-family: 'Roboto Serif', serif;
+    }
+</style>
+
+<body class="bg-gray-50">
+
+    <div class="bg-gray-100 py-3 transition-all duration-300 ease-in-out hover:bg-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="text-m">
+               <a href="{% url 'forum:forum_home' %}" class="{% if request.resolver_match.url_name == 'forum_home' %}border-blue-500 text-gray-900{% else %}border-transparent text-gray-500{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-l font-medium">
+                    Forums
+                </a>
+                <span class="mx-2 text-gray-500">/</span>
+                {% if user.is_authenticated %}
+                    <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-l font-medium">
+                        My Posts
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Search box -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <form method="GET" action="{% url 'forum:forum_home' %}" class="flex items-center">
+            <div class="relative flex-grow">
+                <select name="search_type" class="absolute left-0 top-0 h-full px-5 text-gray-600 bg-gray-100 border-r border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="all">Everything</option>
+                    <option value="titles">Titles</option>
+                    <option value="content">Content</option>
+                </select>
+                <input type="text" name="q" placeholder="Search..." value="{{ request.GET.q }}"
+                       class="w-full pl-32 text-center pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-in-out">
+                <button type="submit" class="absolute right-0 top-0 h-full px-3 text-gray-600 hover:text-blue-500 transition-colors duration-300 ease-in-out">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% endif %} transition-all duration-300 ease-in-out transform hover:scale-105">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Forum sections -->
+        <div class="space-y-6">
+            {% for category in categories %}
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 ease-in-out transform hover:scale-105">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-900">{{ category.name }}</h2>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'forum:create_thread' category_slug=category.slug %}"
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-300 ease-in-out">
+                            New Thread
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="divide-y divide-gray-200">
+                    {% for thread in category.threads.all|slice:":5" %}
+                    <div class="p-6 flex items-center space-x-4 transition-all duration-300 ease-in-out hover:bg-gray-100">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center transition-transform duration-300 ease-in-out hover:rotate-6">
+                                <i class="fas fa-comments text-blue-500 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-lg font-medium text-gray-900">
+                                <a href="{{ thread.get_absolute_url }}" class="hover:text-blue-600 transition-colors duration-300 ease-in-out">{{ thread.title }}</a>
+                            </h3>
+                            <p class="mt-1 text-gray-500">{{ thread.content|truncatewords:30 }}</p>
+                        </div>
+                        <div class="text-sm text-gray-500 text-right">
+                            <div>{{ thread.replies.count }} Replies | {{ thread.views }} Views</div>
+                            <div class="mt-1">
+                                <span class="font-medium">Latest by</span>
+                                <a href="#" class="text-blue-600 hover:underline">{{ thread.author.username }}</a>
+                                <div class="text-xs">{{ thread.created_at|date:"d M Y" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="p-6 text-center text-gray-500">
+                        No threads in this category yet.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Forum stats -->
+        <div class="mt-8 bg-white rounded-lg shadow-sm p-6 transition-all duration-300 ease-in-out hover:shadow-lg">
+            <div class="flex items-center space-x-2 text-gray-900 font-semibold mb-4">
+                <i class="fas fa-chart-bar text-blue-500"></i>
+                <span>Forum Statistics</span>
+            </div>
+            <div class="text-sm text-gray-600 space-y-2">
+                <div>
+                    <span class="font-medium">{{ total_posts }}</span> Posts in
+                    <span class="font-medium">{{ total_threads }}</span> Topics by
+                    <span class="font-medium">{{ total_users }}</span> Members
+                </div>
+                {% if latest_post %}
+                <div>
+                    Latest post:
+                    <a href="{{ latest_post.thread.get_absolute_url }}" class="text-blue-600 hover:underline transition-colors duration-300 ease-in-out">{{ latest_post.thread.title }}</a>
+                    on {{ latest_post.created_at|date:"d M Y" }} by
+                    <a href="#" class="text-blue-600 hover:underline transition-colors duration-300 ease-in-out">{{ latest_post.user.username }}</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.querySelector('.mobile-menu-button');
+        const navigation = document.querySelector('nav');
+
+        mobileMenuButton.addEventListener('click', () => {
+            navigation.classList.toggle('mobile-menu-open');
+        });
+    </script>
+</body>
+</html>
+
+{% endblock %}

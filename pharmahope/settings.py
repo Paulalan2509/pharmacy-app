@@ -44,8 +44,8 @@ INSTALLED_APPS = [
     'paypal.standard.ipn',
     'django_extensions',
     'django_browser_reload',
-
-
+    'blog',
+    'forum',
 ]
 
 MIDDLEWARE = [
@@ -116,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
+# 1
 
 LANGUAGE_CODE = 'en-us'
 
@@ -150,6 +150,26 @@ NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
 
 # Add paypal settings
 # Set sandbox to true
-PAYPAL_TEST = True
 
+PAYPAL_TEST = True
 PAYPAL_RECEIVER_EMAIL = 'alanny223@icloud.com' # Business Sandbox account
+
+
+# settings.py additions
+CINETPAY_API_KEY = '607386830671b7eacaa64c0.35851338'
+CINETPAY_SITE_ID = '5882040'
+CINETPAY_SECRET_KEY = '666851783671b80291643e1.10243932'  # Add the secret key
+
+# For testing, use your local development server
+CINETPAY_NOTIFY_URL = 'http://127.0.0.1:8000/payment/payment_success/'
+CINETPAY_RETURN_URL = 'http://127.0.0.1:8000'
+CINETPAY_CANCEL_URL = 'http://127.0.0.1:8000/payment/payment_failed/'
+
+# For production, use your full domain with HTTPS
+# CINETPAY_NOTIFY_URL = 'https://yourdomain.com/payment/payment_success/'
+# CINETPAY_RETURN_URL = 'https://yourdomain.com/payment/payment_success/'
+# CINETPAY_CANCEL_URL = 'https://yourdomain.com/payment/payment_failed/'
+
+SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = True

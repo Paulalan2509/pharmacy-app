@@ -1,11 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
+
+<style>
+
+  body {
+        font-family: 'Roboto Serif', serif;
+  }
+</style>
+
 <br/><br/>
 <div class="container mx-auto px-4 py-8">
   <div class="bg-white rounded-lg shadow-lg overflow-hidden">
     <div class="md:flex">
       <div class="md:flex-shrink-0 relative">
-        <img id="product-image" src="{{ product.image.url }}" alt="{{ product.name }}" class="h-full w-full object-cover md:w-48 cursor-zoom-in transition duration-300 ease-in-out transform hover:scale-105">
+        <img id="product-image" src="{{ product.image.url }}" alt="{{ product.name }}" class="h-full w-full object-cover md:w-64 cursor-zoom-in transition duration-300 ease-in-out transform hover:scale-105">
       </div>
       <div class="p-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ product.name }}</h2>
@@ -44,8 +52,10 @@
         {% endif %}
         <div class="h-px bg-gray-200 my-6"></div>
         <!-- Custom Quantity Selector -->
-        <div class="space-y-2">
-          <!-- ... (quantity selector code remains the same) ... -->
+        <div class="flex items-center space-x-4">
+          <button class="quantity-btn decrease px-3 py-2 bg-gray-200 rounded-l-md focus:outline-none">-</button>
+          <input type="number" id="qty-cart" class="w-16 px-3 py-2 rounded-md border border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" min="1" max="5" value="1">
+          <button class="quantity-btn increase px-3 py-2 bg-gray-200 rounded-r-md focus:outline-none">+</button>
         </div>
 
         <div class="mt-6 flex space-x-4">
@@ -87,7 +97,7 @@
           {% csrf_token %}
           <div class="mb-4">
             <label for="rating" class="block text-gray-700 font-bold mb-2">Rating</label>
-            <select name="rating" id="rating" class="form-select block w-full mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            <select name="rating" id="rating" class="form-select block w-1/4 mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
               <option value="5">5 Stars</option>
               <option value="4">4 Stars</option>
               <option value="3">3 Stars</option>
@@ -97,7 +107,7 @@
           </div>
           <div class="mb-4">
             <label for="review" class="block text-gray-700 font-bold mb-2">Your Review</label>
-            <textarea name="review" id="review" rows="4" class="form-textarea block w-full mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required></textarea>
+            <textarea name="review" id="review" rows="4" class="form-textarea block w-1/2 mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required></textarea>
           </div>
           <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300">Submit Review</button>
         </form>
@@ -111,7 +121,7 @@
 <!-- Image Modal -->
 <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
   <div class="max-w-3xl max-h-full p-4">
-    <img id="modal-image" src="" alt="Zoomed product image" class="max-w-full max-h-full object-contain">
+    <img id="modal-image" src="" alt="Zoomed product image" class="max-w-1/2 max-h-1/2 object-contain">
   </div>
 </div>
 
@@ -121,12 +131,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const productImage = document.getElementById('product-image');
   const imageModal = document.getElementById('image-modal');
   const modalImage = document.getElementById('modal-image');
+  const quantityInput = document.getElementById('qty-cart');
+  const decreaseBtn = document.querySelector('.quantity-btn.decrease');
+  const increaseBtn = document.querySelector('.quantity-btn.increase');
 
   // Add to cart functionality
   addToCartBtn.addEventListener('click', function(e) {
     e.preventDefault();
     const productId = this.value;
-    const quantity = document.getElementById('qty-cart').value;
+    const quantity = quantityInput.value;
 
     fetch('{% url 'cart_add' %}', {
       method: 'POST',
@@ -157,36 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
     this.classList.add('hidden');
   });
 
-  // Toast notification function
-  function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-lg transition-all duration-300 z-50';
-    toast.style.opacity = '0';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    // Fade in
-    setTimeout(() => {
-      toast.style.opacity = '1';
-    }, 10);
-
-    // Fade out and remove
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      setTimeout(() => {
-        document.body.removeChild(toast);
-      }, 300);
-    }, 3000);
-  }
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const quantityInput = document.getElementById('qty-cart');
-  const decreaseBtn = document.querySelector('.quantity-btn.decrease');
-  const increaseBtn = document.querySelector('.quantity-btn.increase');
-
-  // Update quantity value
+  // Quantity selector functionality
   function updateQuantity(newValue) {
     newValue = Math.max(1, Math.min(5, newValue)); // Clamp between 1 and 5
     quantityInput.value = newValue;
@@ -203,7 +187,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize button states
   updateQuantity(1);
 
-  // Event Listeners
   decreaseBtn.addEventListener('click', () => {
     updateQuantity(parseInt(quantityInput.value) - 1);
   });
@@ -228,7 +211,28 @@ document.addEventListener('DOMContentLoaded', function() {
     e.preventDefault();
     updateQuantity(parseInt(quantityInput.value));
   });
+
+  // Toast notification function
+  function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-lg transition-all duration-300 z-50';
+    toast.style.opacity = '0';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // Fade in
+    setTimeout(() => {
+      toast.style.opacity = '1';
+    }, 10);
+
+    // Fade out and remove
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        document.body.removeChild(toast);
+      }, 300);
+    }, 3000);
+  }
 });
 </script>
-
 {% endblock %}

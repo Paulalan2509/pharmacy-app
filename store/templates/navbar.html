@@ -2,118 +2,76 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>NAVBAR</title>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy Navigation</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
     <style>
-        body {
-            font-family: 'Nunito', sans-serif;
-            padding-top: 80px;
+        .dropdown:hover .dropdown-menu {
+            display: block;
         }
 
-        @media (max-width: 768px) {
-            body {
-                padding-top: 64px;
-            }
+
+        @keyframes cartBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
-        .dropdown-menu {
-            transform-origin: top right;
-            transition: opacity 0.2s ease, transform 0.2s ease;
+        .cart-bounce {
+            animation: cartBounce 0.5s ease;
         }
 
-        .dropdown-menu.active {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-            pointer-events: auto;
-        }
-
-        #mobile-menu {
+        .mobile-menu-transition {
             transition: transform 0.3s ease-in-out;
-            transform: translateY(-100%);
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-        }
-
-        #mobile-menu.active {
-            transform: translateY(0);
-        }
-
-        /* Improved mobile dropdown animations */
-        .mobile-dropdown {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-
-        .mobile-dropdown.active {
-            max-height: 500px;
-            transition: max-height 0.5s ease-in;
-        }
-
-        @media (max-width: 640px) {
-            .nav-brand {
-                font-size: 1.25rem;
-            }
-        }
-
-        /* Better touch areas for mobile */
-        @media (max-width: 768px) {
-            .mobile-touch-target {
-                min-height: 48px;
-                display: flex;
-                align-items: center;
-            }
-        }
-
-        // <uniquifier>: Use a unique and descriptive class name
-        // <weight>: Use a value from 100 to 900
-
-        .roboto-serif-<uniquifier> {
-          font-family: "Roboto Serif", serif;
-          font-optical-sizing: auto;
-          font-weight: 600;
-          font-style: normal;
-          font-variation-settings:
-            "wdth" 100,
-            "GRAD" 0;
         }
     </style>
-
-
 </head>
 <body>
-    <nav class="bg-white shadow-lg font-['Nunito'] fixed top-0 left-0 right-0 z-50 transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 md:h-20">
-                <!-- Logo and Brand -->
+    <nav class="bg-white shadow-lg ">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center">
-                    <img src="/media/uploads/product/logo.png" alt="logo PharmaHope" class="w-8 h-8 md:w-12 md:h-12 transition-transform duration-300 hover:scale-110">
-                    <span class="ml-2 gap-0 nav-brand">
-                        <span class="text-xl font-bold text-green-500">Pharma</span>
-                        <span class="text-xl font-bold text-blue-900">Hope</span>
-                    </span>
+                    <h1 class="text-2xl font-bold text-green-600">Pharma</h1>
+                    <h1 class="text-2xl font-bold text-blue-600">Hope</h1>
                 </div>
 
-                <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
-                    <a href="{% url 'home' %}" class="text-gray-600 hover:text-blue-500 font-semibold px-3 py-2">Home</a>
-                    <a href="{% url 'pharmacy' %}" class="text-gray-600 hover:text-blue-500 font-semibold px-3 py-2">Pharmacy</a>
-                    <a href="{% url 'about' %}" class="text-gray-600 hover:text-blue-500 font-semibold px-3 py-2">About</a>
-                    <a href="{% url 'contact' %}" class="text-gray-600 hover:text-blue-500 font-semibold px-3 py-2">Contact</a>
-                    <a href="{% url 'faq' %}" class="text-gray-600 hover:text-blue-500 font-semibold px-3 py-2">FAQ</a>
-                </div>
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="{% url 'home' %}" class="text-gray-700 hover:text-green-600 px-3 py-2 transition-colors duration-200">Home</a>
+                    <a href="{% url 'about' %}" class="text-gray-700 hover:text-green-600 px-3 py-2 transition-colors duration-200">About</a>
 
-                <!-- Right side items -->
-                <div class="flex items-center space-x-4">
+                    <!-- Pharmacy Dropdown -->
+                    <div class="dropdown relative group">
+                        <button class="text-gray-700 hover:text-green-600 px-3 py-2 flex items-center transition-colors duration-200">
+                            Pharmacy
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu hidden absolute z-10 w-48 bg-white rounded-md shadow-lg py-1">
+                            <a href="{% url 'pharmacy' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">Store</a>
+                            <a href="{% url 'category_summary' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">Drug Categories</a>
+                        </div>
+                    </div>
+
+                    <!-- Services Dropdown -->
+                    <div class="dropdown relative group">
+                        <button class="text-gray-700 hover:text-green-600 px-3 py-2 flex items-center transition-colors duration-200">
+                            Services
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu hidden absolute z-10 w-48 bg-white rounded-md shadow-lg py-1">
+                            <a href="{% url 'blog:post_list' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">Blog</a>
+                            <a href="{% url 'forum:forum_home' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">Forum</a>
+                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-green-50">Consultation</a>
+                            <a href="{% url 'faq' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">FAQ</a>
+                            <a href="{% url 'contact' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">Contact</a>
+                        </div>
+                    </div>
+
                     <!-- Cart -->
                     <a href="{% url 'cart_summary' %}" class="relative group">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:h-8 md:w-8 text-green-500" viewBox="0 0 32 32">
@@ -123,174 +81,119 @@
                     </a>
 
                     <!-- User Menu -->
-                        <div class="relative">
-                        <button type="button" class="flex items-center space-x-2 focus:outline-none" id="user-menu-button">
-
-				{% if user.is_authenticated %}
-
-                        <img class="h-8 w-8 md:h-10 md:w-10 rounded-full " src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23f3f4f6'/%3E%3Cpath d='M20 22c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z' fill='%236B7280'/%3E%3Cpath d='M32 35c0-6.6-5.4-10-12-10s-12 3.4-12 10' fill='%236B7280'/%3E%3C/svg%3E" alt="Profile">
+                    <div class="dropdown relative group">
+                        {% if user.is_authenticated %}
+                        <button class="text-gray-700 hover:text-green-600 px-3 py-2 flex items-center transition-colors duration-200">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
                         </button>
-                        <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" id="user-menu-dropdown">
-                        <a href="{% url 'update_user' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">My Profile</a>
-			            <a href="{% url 'update_info' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">My Infos</a>
-                        <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Logout</a>
+                        <div class="dropdown-menu hidden absolute right-0 z-10 w-48 bg-white rounded-md shadow-lg py-1">
+                            <a href="{% url 'update_user' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">My Profile</a>
+                            <a href="{% url 'update_info' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">My Infos</a>
+                            <a href="{% url 'logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">Logout</a>
 
-				{% if user.is_superuser %}
-			    <a href="{% url 'shipped_dash' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Shipped Orders</a>
-                <a href="{% url 'not_shipped_dash'  %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">UnShipped Orders</a>
-                <a href="{% url 'dashboard'  %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Dashboard</a>
+                            {% if user.is_superuser %}
+                            <a href="{% url 'dashboard'  %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">Analytics Dashboard</a>
+                            <a href="http://127.0.0.1:8000/admin" class="block px-4 py-2 text-gray-700 hover:bg-green-50">Management Dashboard</a>
+                            	{% endif %}
 
-				{% endif %}
+                            {% else %}
+                            <a href="{% url 'login' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">Sign In</a>
 
-				{% else %}
-			    <a href="{% url 'login' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Log In</a>
-                <a href="{% url 'register' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Register</a>
-
-                {% endif %}
-
+                            {% endif %}
                         </div>
                     </div>
+                </div>
 
-                    <!-- Mobile menu button -->
-                    <button type="button" class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 focus:outline-none" id="mobile-menu-button">
-                        <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                            <path class="open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                            <path class="close hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="text-gray-700 hover:text-green-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Mobile menu -->
-        <div class="md:hidden" id="mobile-menu">
-            <div class="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg">
-                <a href="{% url 'home' %" class="mobile-touch-target block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">Home</a>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden mobile-menu-transition">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="{% url 'home' %}" class="block px-3 py-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-md">Home</a>
+                <a href="{% url 'about' %}" class="block px-3 py-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-md">About</a>
 
-                <!-- Mobile Pharmacy Dropdown -->
-                <div class="mobile-dropdown-container">
-                    <button class="mobile-touch-target w-full flex justify-between items-center px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">
+                <!-- Mobile Pharmacy Menu -->
+                <div class="relative">
+                    <button id="mobile-pharmacy-button" class="flex justify-between w-full px-3 py-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-md">
                         Pharmacy
-                        <svg class="w-4 h-4 transform transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                         </svg>
                     </button>
-                    <div class="mobile-dropdown px-4">
-                        <a href="{% url 'category_summary' %}" class="mobile-touch-target block py-2 text-base text-gray-700 hover:text-gray-900">Categories</a>
-                        <a href="{% url 'pharmacy' %}" class="mobile-touch-target block py-2 text-base text-gray-700 hover:text-gray-900">All Products</a>
+                    <div id="mobile-pharmacy-menu" class="hidden px-4 py-2">
+                        <a href="{% url 'pharmacy' %}" class="block px-3 py-2 text-gray-700 hover:text-green-600">Store</a>
+                        <a href="{% url 'category_summary' %}" class="block px-3 py-2 text-gray-700 hover:text-green-600">Drug Categories</a>
                     </div>
                 </div>
 
-                <a href="{% url 'about' %}" class="mobile-touch-target block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">About</a>
-                <a href="{% url 'contact' %}" class="mobile-touch-target block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">Contact</a>
-                <a href="{% url 'faq' %}" class="mobile-touch-target block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">FAQ</a>
+                <!-- Mobile Services Menu -->
+                <div class="relative">
+                    <button id="mobile-services-button" class="flex justify-between w-full px-3 py-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-md">
+                        Services
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                    <div id="mobile-services-menu" class="hidden px-4 py-2">
+                        <a href="{% url 'blog:post_list' %}" class="block px-3 py-2 text-gray-700 hover:text-green-600">Blog</a>
+                        <a href="{% url 'forum:forum_home' %}" class="block px-3 py-2 text-gray-700 hover:text-green-600">Forum</a>
+                        <a href="#" class="block px-3 py-2 text-gray-700 hover:text-green-600">Consultation</a>
+                        <a href="{% url 'faq' %}" class="block px-3 py-2 text-gray-700 hover:text-green-600">FAQ</a>
+                        <a href="{% url 'contact' %}" class="block px-3 py-2 text-gray-700 hover:text-green-600">Contact</a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const navbar = document.getElementById('navbar');
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const userMenuButton = document.getElementById('user-menu-button');
-            const userMenuDropdown = document.getElementById('user-menu-dropdown');
-            const mobileDropdownContainers = document.querySelectorAll('.mobile-dropdown-container');
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobilePharmacyButton = document.getElementById('mobile-pharmacy-button');
+        const mobilePharmacyMenu = document.getElementById('mobile-pharmacy-menu');
+        const mobileServicesButton = document.getElementById('mobile-services-button');
+        const mobileServicesMenu = document.getElementById('mobile-services-menu');
 
-            // Navbar scroll effect with throttling
-            let lastScrollTop = 0;
-            let ticking = false;
-
-            window.addEventListener('scroll', () => {
-                if (!ticking) {
-                    window.requestAnimationFrame(() => {
-                        const scrollTop = window.pageYOffset;
-                        if (scrollTop > lastScrollTop && scrollTop > 80) {
-                            navbar.style.transform = 'translateY(-100%)';
-                        } else {
-                            navbar.style.transform = 'translateY(0)';
-                        }
-                        lastScrollTop = scrollTop;
-                        ticking = false;
-                    });
-                    ticking = true;
-                }
-            });
-
-            // Mobile menu toggle
-            mobileMenuButton.addEventListener('click', () => {
-                const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
-                mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
-                mobileMenu.classList.toggle('active');
-
-                // Toggle menu button icon
-                const openIcon = mobileMenuButton.querySelector('.open');
-                const closeIcon = mobileMenuButton.querySelector('.close');
-                openIcon.classList.toggle('hidden');
-                closeIcon.classList.toggle('hidden');
-            });
-
-            // Mobile dropdowns
-            mobileDropdownContainers.forEach(container => {
-                const button = container.querySelector('button');
-                const dropdown = container.querySelector('.mobile-dropdown');
-                const arrow = button.querySelector('svg');
-
-                button.addEventListener('click', () => {
-                    dropdown.classList.toggle('active');
-                    arrow.style.transform = dropdown.classList.contains('active') ? 'rotate(180deg)' : '';
-                });
-            });
-
-            // User menu dropdown
-            userMenuButton.addEventListener('click', () => {
-                userMenuDropdown.classList.toggle('hidden');
-                if (!userMenuDropdown.classList.contains('hidden')) {
-                    gsap.from(userMenuDropdown, {
-                        opacity: 0,
-                        y: -10,
-                        duration: 0.2,
-                        ease: 'power2.out'
-                    });
-                }
-            });
-
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', (event) => {
-                if (!userMenuButton.contains(event.target) && !userMenuDropdown.contains(event.target)) {
-                    userMenuDropdown.classList.add('hidden');
-                }
-            });
-
-
-		// Cart animation
-   		 const cartIcon = document.querySelector('[href*="cart_summary"]');
-	  	cartIcon.classList.add('cart-bounce');
-
-            // Handle resize events
-            let resizeTimer;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(() => {
-                    // Close mobile menu on window resize
-                    if (window.innerWidth > 768) {
-                        mobileMenu.classList.remove('active');
-                        mobileMenuButton.querySelector('.open').classList.remove('hidden');
-                        mobileMenuButton.querySelector('.close').classList.add('hidden');
-                    }
-
-                    // Reset any transforms on navbar
-                    if (window.innerWidth > 768) {
-                        navbar.style.transform = 'translateY(0)';
-                    }
-
-                    // Close any open dropdowns
-                    document.querySelectorAll('.mobile-dropdown.active').forEach(dropdown => {
-                        dropdown.classList.remove('active');
-                    });
-                }, 250);
-            });
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
         });
+
+        mobilePharmacyButton.addEventListener('click', () => {
+            mobilePharmacyMenu.classList.toggle('hidden');
+        });
+
+        mobileServicesButton.addEventListener('click', () => {
+            mobileServicesMenu.classList.toggle('hidden');
+        });
+
+        // Cart functionality
+        const cartIcon = document.querySelector('[href="/cart_summary"]');
+        const cartQuantity = document.getElementById('cart_quantity');
+        let cart = [];
+
+        function updateCart(items) {
+            cart = items;
+            cartQuantity.textContent = cart.length;
+            cartIcon.classList.add('cart-bounce');
+            setTimeout(() => {
+                cartIcon.classList.remove('cart-bounce');
+            }, 500);
+        }
+
+        // Example usage:
+        // updateCart([{id: 1, name: 'Medicine 1'}, {id: 2, name: 'Medicine 2'}]);
     </script>
 </body>
 </html>

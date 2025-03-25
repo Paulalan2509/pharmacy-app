@@ -14,8 +14,8 @@ class ShippingForm(forms.ModelForm):
     shipping_city = forms.CharField(label="City",
                                     widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'}),
                                     required=True)
-    shipping_state = forms.CharField(label="State",
-                                     widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'State'}),
+    shipping_region = forms.CharField(label="Region",
+                                     widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Region'}),
                                      required=False)
     shipping_zipcode = forms.CharField(label="Zipcode", widget=forms.TextInput(
         attrs={'class': 'form-control', 'placeholder': 'Zipcode'}), required=False)
@@ -27,7 +27,7 @@ class ShippingForm(forms.ModelForm):
     class Meta:
         model = ShippingAddress
         fields = ['shipping_full_name', 'shipping_email', 'shipping_address1', 'shipping_address2', 'shipping_city',
-                  'shipping_state', 'shipping_zipcode', 'shipping_country', 'shipping_phone']
+                  'shipping_region', 'shipping_zipcode', 'shipping_country', 'shipping_phone']
 
         exclude = ['user', ]
 
