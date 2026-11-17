@@ -1,0 +1,4 @@
+# Development-only tools. Install with: pip install -r requirements-dev.txt
+-r requirements.txt
+django-browser-reload>=1.12
+django-extensions>=3.2

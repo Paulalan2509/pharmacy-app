@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from store.models import Product, Profile
 import datetime
-import requests
 import json
 
 # Import Some Paypal Stuff
@@ -201,73 +200,6 @@ def process_order(request):
         return redirect('home')
 
 
-# def create_cinetpay_payment(request, amount, description):
-#     """
-#     Create a CinetPay payment transaction with proper authentication
-#     """
-#     transaction_id = str(uuid.uuid4())
-#
-#     # CinetPay API endpoint
-#     api_url = "https://api-checkout.cinetpay.com/v2/payment"
-#
-#     # Prepare payment data
-#     payment_data = {
-#     'apikey': settings.CINETPAY_API_KEY,
-#     'site_id': settings.CINETPAY_SITE_ID,
-#     'transaction_id': transaction_id,
-#     'amount': amount,
-#     'currency': 'XAF',
-#     'description': description,
-#     'notify_url': settings.CINETPAY_NOTIFY_URL,
-#     'return_url': settings.CINETPAY_RETURN_URL,
-#     'cancel_url': settings.CINETPAY_CANCEL_URL,
-#     'channels': 'ALL',
-#     'lang': 'fr',
-#     'metadata': 'order_tracking'
-# }
-#
-#
-#     try:
-#         # Make the API request
-#         response = requests.post(api_url, json=payment_data)
-#
-#         # Log the full response for debugging
-#         print(f"Status Code: {response.status_code}")
-#         print(f"Response Content: {response.text}")
-#
-#         # Check if request was successful
-#         if response.status_code == 200:
-#             response_data = response.json()
-#
-#             # Check if the payment URL is in the response
-#             if 'data' in response_data and 'payment_url' in response_data['data']:
-#                 return {
-#                     'success': True,
-#                     'payment_url': response_data['data']['payment_url'],
-#                     'transaction_id': transaction_id
-#                 }
-#             else:
-#                 return {
-#                     'success': False,
-#                     'error': 'Payment URL not found in response',
-#                     'response': response_data
-#                 }
-#
-#         else:
-#             return {
-#                 'success': False,
-#                 'error': f'API request failed with status code {response.status_code}',
-#                 'response': response.text
-#             }
-#
-#
-#     except Exception as e:
-#         print(f"Exception occurred: {str(e)}")
-#         return {
-#             'success': False,
-#             'error': str(e)
-#         }
-
 def billing_info(request):
     if request.POST:
         # Get the cart
@@ -282,8 +214,6 @@ def billing_info(request):
 
         # Get the host
         host = request.get_host()
-
-        # cinetpay view here
 
 
         # Create Paypal Form Dictionary
