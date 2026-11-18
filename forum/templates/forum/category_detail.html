@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16" style="font-family: 'Roboto Serif', serif;">
+    <nav class="text-sm text-gray-500 mb-6">
+        <a href="{% url 'forum:forum_home' %}" class="text-blue-600 hover:underline">Forums</a>
+        <span class="mx-2">/</span>
+        <span>{{ category.name }}</span>
+    </nav>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="flex justify-between items-start mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">{{ category.name }}</h1>
+            {% if category.description %}<p class="mt-2 text-gray-600">{{ category.description }}</p>{% endif %}
+        </div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'forum:create_thread' category_slug=category.slug %}"
+           class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">New Thread</a>
+        {% endif %}
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm divide-y divide-gray-200">
+        {% for thread in threads %}
+        <div class="p-6 flex justify-between items-center">
+            <div>
+                <h2 class="text-lg font-medium text-gray-900">
+                    <a href="{{ thread.get_absolute_url }}" class="hover:text-blue-600">{{ thread.title }}</a>
+                    {% if thread.status == 'closed' %}<span class="ml-2 text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">Closed</span>{% endif %}
+                    {% if thread.status == 'pinned' %}<span class="ml-2 text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-800">Pinned</span>{% endif %}
+                </h2>
+                <p class="mt-1 text-gray-500">{{ thread.content|truncatewords:25 }}</p>
+            </div>
+            <div class="text-sm text-gray-500 text-right shrink-0 ml-4">
+                <div>{{ thread.reply_total }} Replies | {{ thread.views }} Views</div>
+                <div class="mt-1">by {{ thread.author.username }} &middot; {{ thread.created_at|date:"d M Y" }}</div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="p-6 text-center text-gray-500">No threads in this category yet.</div>
+        {% endfor %}
+    </div>
+
+    {% if threads.has_other_pages %}
+    <div class="mt-6 flex justify-center items-center space-x-4 text-sm">
+        {% if threads.has_previous %}<a href="?page={{ threads.previous_page_number }}" class="text-blue-600 hover:underline">&laquo; Previous</a>{% endif %}
+        <span class="text-gray-600">Page {{ threads.number }} of {{ threads.paginator.num_pages }}</span>
+        {% if threads.has_next %}<a href="?page={{ threads.next_page_number }}" class="text-blue-600 hover:underline">Next &raquo;</a>{% endif %}
+    </div>
+    {% endif %}
+</main>
+{% endblock %}

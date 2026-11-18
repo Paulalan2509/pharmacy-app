@@ -201,6 +201,11 @@ INTERNAL_IPS = [
 if os.environ.get('NPM_BIN_PATH'):
     NPM_BIN_PATH = os.environ['NPM_BIN_PATH']
 
+# --- Authentication ---------------------------------------------------------
+
+# Where @login_required sends anonymous users (this project's login view is named 'login').
+LOGIN_URL = 'login'
+
 # --- Sessions ---------------------------------------------------------------
 
 SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
