@@ -1,5 +1,6 @@
 from django import forms
 from .models import BlogPost, BlogComment
+from .sanitizers import sanitize_post_html
 
 
 class BlogPostForm(forms.ModelForm):
@@ -22,6 +23,10 @@ class BlogPostForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'class': 'form-control'}),
             'meta_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+    def clean_content(self):
+        # Never store script/event-handler markup, even though it is also sanitized when displayed.
+        return sanitize_post_html(self.cleaned_data['content'])
 
 
 class BlogCommentForm(forms.ModelForm):

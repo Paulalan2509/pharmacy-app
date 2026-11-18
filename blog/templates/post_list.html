@@ -17,6 +17,7 @@
                 <h1 class="text-4xl font-bold text-gray-800 animate__animated animate__fadeIn">
                     Blog Posts
                 </h1>
+                {% if perms.blog.add_blogpost %}
                 <a href="{% url 'blog:post_create' %}"
                    class="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-300">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,6 +25,7 @@
                     </svg>
                     Create Post
                 </a>
+                {% endif %}
             </div>
             <p class="text-gray-600 max-w-xl animate__animated animate__fadeIn animate__delay-1s">
                 Explore our latest insights, stories, and updates.
