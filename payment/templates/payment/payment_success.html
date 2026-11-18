@@ -27,32 +27,21 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
         </div>
-        <h1 class="text-4xl font-bold mb-4 text-gray-800">Payment Successful!</h1>
-        <p class="text-gray-600 mb-8">Thank you for your purchase. Your order has been processed successfully.</p>
+        <h1 class="text-4xl font-bold mb-4 text-gray-800">Thank you!</h1>
+        <p class="text-gray-600 mb-8">{% if order and order.is_paid %}Your payment was received and your order is confirmed.{% else %}We are waiting for PayPal to confirm your payment. This usually takes a few moments. Please keep your order number for reference.{% endif %}</p>
         <div class="mb-8">
-            <p class="text-2xl font-semibold text-gray-800" id="orderNumber"></p>
+            <p class="text-2xl font-semibold text-gray-800" id="orderNumber">{% if order %}Order #{{ order.id }}{% endif %}</p>
         </div>
         <div class="space-y-4">
-            <a href="#" class="block w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded transition duration-300">
-                View Order Details
-            </a>
-            <a href="#" class="block w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded transition duration-300">
+            <a href="{% url 'pharmacy' %}" class="block w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded transition duration-300">
                 Continue Shopping
             </a>
         </div>
     </div>
 
     <script>
-        // Generate a random order number
-        function generateOrderNumber() {
-            return 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-        }
-
         // Animate elements
         document.addEventListener('DOMContentLoaded', (event) => {
-            // Set order number
-            document.getElementById('orderNumber').textContent = `Order #${generateOrderNumber()}`;
-
             // Animate card appearance
             gsap.from("#successCard", {
                 duration: 1,

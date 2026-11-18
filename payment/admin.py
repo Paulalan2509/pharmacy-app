@@ -16,9 +16,9 @@ class OrderItemInline(admin.StackedInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'full_name', 'email', 'amount_paid', 'date_ordered', 'shipped')
-    readonly_fields = ('date_ordered',)
-    list_filter = ('shipped', 'date_ordered')
+    list_display = ('id', 'user', 'full_name', 'email', 'amount_paid', 'payment_status', 'date_ordered', 'shipped')
+    readonly_fields = ('date_ordered', 'invoice', 'paypal_amount', 'paypal_currency', 'paypal_txn_id', 'paid_at')
+    list_filter = ('payment_status', 'shipped', 'date_ordered')
     search_fields = ('full_name', 'email')
     date_hierarchy = 'date_ordered'
 
@@ -28,6 +28,12 @@ class OrderAdmin(admin.ModelAdmin):
         'email',
         'shipping_address',
         'amount_paid',
+        'payment_status',
+        'invoice',
+        'paypal_amount',
+        'paypal_currency',
+        'paypal_txn_id',
+        'paid_at',
         'date_ordered',
         'shipped',
         'date_shipped'
@@ -38,6 +44,6 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'order', 'product', 'user', 'quantity', 'price')
+    list_display = ('id', 'order', 'product_name', 'user', 'quantity', 'price')
     list_filter = ('order', 'product', 'user')
     search_fields = ('order__full_name', 'product__name', 'user__username')
