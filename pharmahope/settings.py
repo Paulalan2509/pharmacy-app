@@ -233,7 +233,7 @@ PAYPAL_EXCHANGE_RATE = os.environ.get('PAYPAL_EXCHANGE_RATE', '')
 
 # --- Shop -------------------------------------------------------------------
 
-CART_MAX_QTY = int(os.environ.get('CART_MAX_QTY', '10'))
+CART_MAX_QTY = int(os.environ.get('CART_MAX_QTY', '5'))
 
 # --- Logging ----------------------------------------------------------------
 

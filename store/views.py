@@ -90,7 +90,8 @@ def store(request):
 def dashboard(request):
     if request.user.is_authenticated and request.user.is_superuser:
         profiles = Profile.objects.all()
-        not_shipped_orders = Order.objects.filter(shipped=False)
+        # Only paid orders are waiting to be shipped; unpaid ones are just abandoned checkouts.
+        not_shipped_orders = Order.objects.filter(shipped=False, payment_status=Order.PAYMENT_PAID)
         shipped_orders = Order.objects.filter(shipped=True)
 
         context = {
@@ -101,7 +102,7 @@ def dashboard(request):
 
         return render(request, 'dashboard.html', context)
     else:
-        messages.success(request, "Access Denied")
+        messages.error(request, "Access Denied")
         return redirect('home')
 
 def about(request):
@@ -333,7 +334,9 @@ def update_info(request):
     # Get user profile
     user_profile = Profile.objects.get(user=request.user)
     current_user = Profile.objects.get(user__id=request.user.id)
-    shipping_user = ShippingAddress.objects.get(user__id=request.user.id)
+    shipping_user = ShippingAddress.objects.filter(user__id=request.user.id).first()
+    if shipping_user is None:
+        shipping_user = ShippingAddress.objects.create(user=request.user)
 
     if request.method == 'POST':
         # Get original User Form

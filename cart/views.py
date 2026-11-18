@@ -1,8 +1,22 @@
-from django.shortcuts import render, get_object_or_404
-from .cart import Cart
-from store.models import Product
-from django.http import JsonResponse
 from django.contrib import messages
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.views.decorators.http import require_POST
+
+from store.models import Product
+
+from .cart import Cart
+
+
+def _error(message, status=400):
+    return JsonResponse({'error': message}, status=status)
+
+
+def _parse_product_and_quantity(request, require_quantity=True):
+    """Return (product_id, quantity) from POST data or raise ValueError."""
+    product_id = int(request.POST.get('product_id'))
+    quantity = Cart.clean_quantity(request.POST.get('product_qty')) if require_quantity else None
+    return product_id, quantity
 
 
 def cart_summary(request):
@@ -15,56 +29,47 @@ def cart_summary(request):
                   {"cart_products": cart_products, "quantities": quantities, "totals": totals})
 
 
+@require_POST
 def cart_add(request):
-    # Get the cart
     cart = Cart(request)
+    try:
+        product_id, quantity = _parse_product_and_quantity(request)
+    except (TypeError, ValueError):
+        return _error('Invalid product or quantity.')
 
-    # test for POST
-    if request.POST.get('action') == 'post':
-        # Get stuff
-        product_id = int(request.POST.get('product_id'))
-        product_qty = int(request.POST.get('product_qty'))
+    product = get_object_or_404(Product, id=product_id)
+    if product.availability_status == 'Out of Stock':
+        return _error('This product is out of stock.', status=409)
 
-        # lookup product in DB
-        product = get_object_or_404(Product, id=product_id)
-
-        # Save to session
-        cart.add(product=product, quantity=product_qty)
-
-        # Get Cart Quantity
-        cart_quantity = cart.__len__()
-
-        # Return response
-        # response = JsonResponse({'Product Name': product.name})
-        response = JsonResponse({'qty': cart_quantity})
-        messages.success(request, ("Product Added To Cart..."))
-        return response
+    line_quantity = cart.add(product=product, quantity=quantity)
+    messages.success(request, "Product Added To Cart...")
+    return JsonResponse({'qty': len(cart), 'line_qty': line_quantity})
 
 
+@require_POST
 def cart_delete(request):
     cart = Cart(request)
-    if request.POST.get('action') == 'post':
-        # Get stuff
-        product_id = int(request.POST.get('product_id'))
-        # Call delete Function in Cart
-        cart.delete(product=product_id)
+    try:
+        product_id, _ = _parse_product_and_quantity(request, require_quantity=False)
+    except (TypeError, ValueError):
+        return _error('Invalid product.')
 
-        response = JsonResponse({'product': product_id})
-        # return redirect('cart_summary')
-        messages.success(request, ("Item Deleted From Shopping Cart..."))
-        return response
+    cart.delete(product=product_id)
+    messages.success(request, "Item Deleted From Shopping Cart...")
+    return JsonResponse({'product': product_id})
 
 
+@require_POST
 def cart_update(request):
     cart = Cart(request)
-    if request.POST.get('action') == 'post':
-        # Get stuff
-        product_id = int(request.POST.get('product_id'))
-        product_qty = int(request.POST.get('product_qty'))
+    try:
+        product_id, quantity = _parse_product_and_quantity(request)
+    except (TypeError, ValueError):
+        return _error('Invalid product or quantity.')
 
-        cart.update(product=product_id, quantity=product_qty)
+    if str(product_id) not in cart.get_quants():
+        return _error('That product is not in your cart.', status=404)
 
-        response = JsonResponse({'qty': product_qty})
-        # return redirect('cart_summary')
-        messages.success(request, ("Your Cart Has Been Updated..."))
-        return response
+    cart.update(product=product_id, quantity=quantity)
+    messages.success(request, "Your Cart Has Been Updated...")
+    return JsonResponse({'qty': quantity})

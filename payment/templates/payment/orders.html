@@ -19,7 +19,7 @@
         				<br/><br/>
 <div class="card">
   <div class="card-header">
-    Order {{ order.id}} - {{order.amount_paid}} FCFA
+    Order {{ order.id}} - {{order.amount_paid}} FCFA ({{ order.get_payment_status_display }})
   </div>
   <div class="card-body">
     Email: {{ order.email}}<br/>
@@ -33,11 +33,13 @@
     <pre>{{ order.shipping_address }}
     </pre>
     {% for item in items %}
-      {{ item.product }} - {{ item.quantity }} - {{ item.price }} FCFA<br/>
+      {{ item.product_name|default:item.product }} - {{ item.quantity }} - {{ item.price }} FCFA<br/>
 
     {% endfor %}
     <br/><br/>
-    {% if not order.shipped %}
+    {% if not order.shipped and not order.is_paid %}
+    <p>This order cannot be shipped until PayPal confirms payment.</p>
+    {% elif not order.shipped %}
     <form method="POST">
       {% csrf_token %}
       <input type="hidden" name="shipping_status" value="true">

@@ -54,7 +54,7 @@
         <!-- Custom Quantity Selector -->
         <div class="flex items-center space-x-4">
           <button class="quantity-btn decrease px-3 py-2 bg-gray-200 rounded-l-md focus:outline-none">-</button>
-          <input type="number" id="qty-cart" class="w-16 px-3 py-2 rounded-md border border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" min="1" max="5" value="1">
+          <input type="number" id="qty-cart" class="w-16 px-3 py-2 rounded-md border border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" min="1" max="{{ cart_max_qty }}" value="1">
           <button class="quantity-btn increase px-3 py-2 bg-gray-200 rounded-r-md focus:outline-none">+</button>
         </div>
 
@@ -149,13 +149,20 @@ document.addEventListener('DOMContentLoaded', function() {
       },
       body: `product_id=${productId}&product_qty=${quantity}&action=post`
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(response => response.json().then(data => ({ ok: response.ok, data })))
+    .then(({ ok, data }) => {
+      if (!ok) {
+        showToast(data.error || 'Could not add this product to your cart.');
+        return;
+      }
       document.getElementById("cart_quantity").textContent = data.qty;
       // Show a toast notification
       showToast('Product added to cart!');
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+      console.error('Error:', error);
+      showToast('Could not add this product to your cart.');
+    });
   });
 
   // Image zoom functionality
@@ -172,16 +179,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Quantity selector functionality
   function updateQuantity(newValue) {
-    newValue = Math.max(1, Math.min(5, newValue)); // Clamp between 1 and 5
+    newValue = Math.max(1, Math.min({{ cart_max_qty }}, newValue || 1)); // Clamp between 1 and the shop limit
     quantityInput.value = newValue;
 
     // Update button states
     decreaseBtn.disabled = newValue <= 1;
-    increaseBtn.disabled = newValue >= 5;
+    increaseBtn.disabled = newValue >= {{ cart_max_qty }};
 
     // Update visual states
     decreaseBtn.classList.toggle('opacity-50', newValue <= 1);
-    increaseBtn.classList.toggle('opacity-50', newValue >= 5);
+    increaseBtn.classList.toggle('opacity-50', newValue >= {{ cart_max_qty }});
   }
 
   // Initialize button states

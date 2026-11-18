@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 import datetime
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -17,7 +19,7 @@ class Profile(models.Model):
     region_or_state = models.CharField(max_length=100, blank=True)
     zipcode = models.CharField(max_length=50, blank=True)
     country = models.CharField(max_length=50, blank=True)
-    old_cart = models.CharField(max_length=180, blank=True, null=True)
+    old_cart = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.user.username
@@ -66,14 +68,16 @@ class Product(models.Model):
     ]
 
     name = models.CharField(max_length=50)
-    price = models.FloatField(default=0, max_length=13)
+    price = models.DecimalField(max_digits=12, decimal_places=2, default=0,
+                                validators=[MinValueValidator(Decimal('0'))])
     category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
     description = models.TextField(default='', blank=True, null=True)
     image = models.ImageField(upload_to='uploads/product/')
     availability_status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='In Stock')
     expiration_date = models.DateField(blank=True, null=True)
     is_sale = models.BooleanField(default=False)
-    sale_price = models.FloatField(default=0, max_length=13)
+    sale_price = models.DecimalField(max_digits=12, decimal_places=2, default=0,
+                                     validators=[MinValueValidator(Decimal('0'))])
 
     def __str__(self):
         return self.name
