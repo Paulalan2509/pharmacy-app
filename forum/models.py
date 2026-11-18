@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+
+from pharmahope.slugs import unique_slug
 from django.urls import reverse
 
 
@@ -44,18 +46,8 @@ class ForumThread(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = self._unique_slug()
+            self.slug = unique_slug(self, self.title, fallback='thread')
         super().save(*args, **kwargs)
-
-    def _unique_slug(self):
-        """Slugify the title, adding -2, -3... so two threads with the same title don't collide."""
-        max_length = self._meta.get_field('slug').max_length
-        base = (slugify(self.title) or 'thread')[:max_length - 10]
-        slug, counter = base, 2
-        while ForumThread.objects.filter(slug=slug).exclude(pk=self.pk).exists():
-            slug = f'{base}-{counter}'
-            counter += 1
-        return slug
 
     def get_absolute_url(self):
         return reverse('forum:thread_detail', kwargs={'slug': self.slug})

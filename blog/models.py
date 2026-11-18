@@ -1,9 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.text import slugify
+from django.utils.text import Truncator, slugify
 from django.urls import reverse
 from django.conf import settings
-from store.models import Profile  # Add this import
+from pharmahope.slugs import unique_slug
+from store.models import Profile
+
+from .sanitizers import plain_text
 
 
 class BlogCategory(models.Model):
@@ -49,20 +52,27 @@ class BlogPost(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            self.slug = unique_slug(self, self.title, fallback='post')
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('blog:post_detail', kwargs={'slug': self.slug})
 
+    @property
+    def excerpt(self):
+        """A short plain-text summary for post cards (all HTML removed)."""
+        return Truncator(plain_text(self.content)).words(30)
+
     def __str__(self):
         return self.title
 
     def get_author_profile_picture(self):
+        """URL of the author's profile picture, or '' when they have none."""
         try:
-            return self.author.profile.image.url
-        except Profile.DoesNotExist:
-            return settings.STATIC_URL + 'images/default_profile.png'  # Provide a default image path
+            image = self.author.profile.image
+            return image.url if image else ''
+        except (Profile.DoesNotExist, ValueError):
+            return ''
 
 
 class BlogTag(models.Model):

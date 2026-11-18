@@ -1,65 +1,62 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import redirect_to_login
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
 
 from store.models import Profile
-from .models import BlogPost, BlogCategory, BlogTag, BlogComment
-from .forms import BlogPostForm, BlogCommentForm
+
+from .forms import BlogCommentForm, BlogPostForm
+from .models import BlogCategory, BlogPost, BlogTag
+from .permissions import can_delete_post, can_edit_post, can_publish, can_view_post
+
+
+def _profile_for(request):
+    """The signed-in user's profile, or None (a missing profile must not crash the page)."""
+    if request.user.is_authenticated:
+        return Profile.objects.filter(user=request.user).first()
+    return None
 
 
 def blog_post_list(request):
-    if request.user.is_authenticated:
-        user_profile = Profile.objects.get(user=request.user)
-    else:
-        user_profile = None
-    """
-    View to list all published blog posts with pagination and context
-    """
-    # Retrieve only published posts, ordered by creation date
-    post_list = BlogPost.objects.filter(status='published').order_by('-created_at')
+    """List published posts, newest first, with pagination."""
+    post_list = BlogPost.objects.filter(status='published').select_related('category', 'author').order_by('-created_at')
 
-    # Pagination
     paginator = Paginator(post_list, 10)  # 10 posts per page
     page = request.GET.get('page')
 
     try:
         posts = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page
         posts = paginator.page(1)
     except EmptyPage:
-        # If page is out of range, deliver last page of results
         posts = paginator.page(paginator.num_pages)
 
-    # Additional context
     context = {
         'posts': posts,
         'categories': BlogCategory.objects.all(),
         'tags': BlogTag.objects.all(),
-        'user_profile': user_profile
+        'user_profile': _profile_for(request),
     }
 
     return render(request, 'post_list.html', context)
 
 
 def blog_post_detail(request, slug):
-    if request.user.is_authenticated:
-        user_profile = Profile.objects.get(user=request.user)
-    else:
-        user_profile = None
-
-    """
-    View to display a single blog post with comments
-    """
-    # Retrieve the post or return 404
+    """Show one post with its approved comments, and accept new comments from signed-in users."""
     post = get_object_or_404(BlogPost, slug=slug)
 
-    # Handle comment submission
-    if request.method == 'POST':
-        comment_form = BlogCommentForm(request.POST)
+    # Drafts and archived posts are only visible to their author and editors.
+    if not can_view_post(request.user, post):
+        raise Http404
 
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            messages.warning(request, 'Please log in to comment.')
+            return redirect_to_login(post.get_absolute_url())
+
+        comment_form = BlogCommentForm(request.POST)
         if comment_form.is_valid():
             new_comment = comment_form.save(commit=False)
             new_comment.post = post
@@ -70,14 +67,13 @@ def blog_post_detail(request, slug):
     else:
         comment_form = BlogCommentForm()
 
-    # Retrieve approved top-level comments
-    comments = post.comments.filter(is_approved=True, parent__isnull=True)
+    comments = post.comments.filter(is_approved=True, parent__isnull=True).select_related('user')
 
     context = {
         'post': post,
         'comments': comments,
         'comment_form': comment_form,
-        'user_profile': user_profile
+        'user_profile': _profile_for(request),
     }
 
     return render(request, 'post_detail.html', context)
@@ -85,10 +81,11 @@ def blog_post_detail(request, slug):
 
 @login_required
 def blog_post_create(request):
-    """
-    View to create a new blog post
-    """
-    # Get all categories with their hierarchy
+    """Create a post. Restricted to people allowed to publish (see blog/permissions.py)."""
+    if not can_publish(request.user):
+        messages.error(request, 'Only authorised authors can write blog posts.')
+        return redirect('blog:post_list')
+
     categories = BlogCategory.objects.all().order_by('name')
 
     if request.method == 'POST':
@@ -111,16 +108,11 @@ def blog_post_create(request):
 
 @login_required
 def blog_post_update(request, slug):
-    """
-    View to update an existing blog post
-    """
-    # Retrieve the post or return 404
     post = get_object_or_404(BlogPost, slug=slug)
 
-    # Check if the current user is the author
-    if request.user != post.author:
+    if not can_edit_post(request.user, post):
         messages.error(request, 'You do not have permission to edit this post.')
-        return redirect('blog:post_detail', slug=post.slug)
+        return redirect('blog:post_list')
 
     if request.method == 'POST':
         form = BlogPostForm(request.POST, request.FILES, instance=post)
@@ -131,29 +123,24 @@ def blog_post_update(request, slug):
     else:
         form = BlogPostForm(instance=post)
 
-    return render(request, 'post_form.html', {'form': form})
+    return render(request, 'post_form.html', {
+        'form': form,
+        'categories': BlogCategory.objects.all().order_by('name'),
+    })
 
 
 @login_required
 def blog_post_delete(request, slug):
-    """
-    View to delete a blog post with improved error handling and user feedback
-    """
     post = get_object_or_404(BlogPost, slug=slug)
 
-    # Check if the current user is the author or has delete permissions
-    if not (request.user == post.author or request.user.has_perm('blog.delete_blogpost')):
+    if not can_delete_post(request.user, post):
         messages.error(request, 'You do not have permission to delete this post.')
-        return redirect('blog:post_detail', slug=post.slug)
+        return redirect('blog:post_list')
 
     if request.method == 'POST':
-        try:
-            post.delete()
-            messages.success(request, 'Blog post deleted successfully.')
-            return redirect('blog:post_list')
-        except Exception as e:
-            messages.error(request, f'Error deleting post: {str(e)}')
-            return redirect('blog:post_detail', slug=post.slug)
+        post.delete()
+        messages.success(request, 'Blog post deleted successfully.')
+        return redirect('blog:post_list')
 
     return render(request, 'post_confirm_delete.html', {
         'post': post,
@@ -163,30 +150,14 @@ def blog_post_delete(request, slug):
 
 
 def category_posts(request, slug):
-    """
-    View to list posts in a specific category
-    """
     category = get_object_or_404(BlogCategory, slug=slug)
     posts = BlogPost.objects.filter(category=category, status='published')
 
-    context = {
-        'category': category,
-        'posts': posts
-    }
-
-    return render(request, 'category_posts.html', context)
+    return render(request, 'category_posts.html', {'category': category, 'posts': posts})
 
 
 def tag_posts(request, slug):
-    """
-    View to list posts with a specific tag
-    """
     tag = get_object_or_404(BlogTag, slug=slug)
     posts = tag.blogpost_set.filter(status='published')
 
-    context = {
-        'tag': tag,
-        'posts': posts
-    }
-
-    return render(request, 'tag_posts.html', context)
+    return render(request, 'tag_posts.html', {'tag': tag, 'posts': posts})
