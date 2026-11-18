@@ -177,6 +177,14 @@ Create a superuser to access `/admin/`. Superusers can also use the project dash
 
 The admin dashboard depends on seeded product, category, and forum/blog data being available in the database.
 
+### Blog authors
+
+Only trusted people can publish blog posts. Superusers always can; for anyone else, create a group called "Blog authors" in `/admin/` (Authentication and Authorization > Groups), give it the "Can add blog post" permission (and "Can change blog post" for editors who may edit others' posts), and add the users to it. Ordinary registered customers can read and comment. Comments wait for approval in the admin. Drafts and archived posts are visible only to their author and to editors. Post HTML is sanitized on save and on display.
+
+### Login throttling
+
+After 5 failed logins for the same username from the same IP, further attempts are refused for 15 minutes (HTTP 429), even with the correct password. This uses Django's cache. The default per-process cache is fine for one server; with several workers or servers, configure a shared cache (Redis or Memcached) so the counter is shared.
+
 ## Static and media files
 
 - Static assets are under `static/`.
@@ -195,7 +203,7 @@ python manage.py check
 python manage.py test
 ```
 
-The test suite covers the cart limits, server-side totals, the PayPal currency guard, IPN verification (amount, currency, receiver, replay, refund), shipping permissions, and the forum. Run it with `DJANGO_DEBUG=True DB_ENGINE=sqlite` for a quick local run.
+The test suite covers the cart limits, server-side totals, the PayPal currency guard, IPN verification (amount, currency, receiver, replay, refund), shipping permissions, the forum, blog security (XSS, permissions, drafts), login throttling, unique emails, and store filtering/pagination. Run it with `DJANGO_DEBUG=True DB_ENGINE=sqlite` for a quick local run.
 
 ## Production checklist
 

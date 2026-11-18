@@ -4,7 +4,22 @@ from django import forms
 from .models import Profile, ProductReview
 
 
-class SignUpForm(UserCreationForm):
+class UniqueEmailMixin:
+    """Reject an email that another account already uses (case-insensitive)."""
+
+    def clean_email(self):
+        email = (self.cleaned_data.get('email') or '').strip()
+        if email:
+            taken = User.objects.filter(email__iexact=email)
+            if self.instance and self.instance.pk:
+                taken = taken.exclude(pk=self.instance.pk)
+            if taken.exists():
+                raise forms.ValidationError('An account with this email already exists.')
+        return email
+
+
+
+class SignUpForm(UniqueEmailMixin, UserCreationForm):
     email = forms.EmailField(label="Email", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Email Address'}))
     first_name = forms.CharField(label="First Name", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}))
     last_name = forms.CharField(label="Last Name", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}))
@@ -33,7 +48,7 @@ class SignUpForm(UserCreationForm):
             'password2'].help_text = '<span class="form-text text-muted"><small>Enter the same password as before, for verification.</small></span>'
 
 
-class UpdateUserForm(UserChangeForm):
+class UpdateUserForm(UniqueEmailMixin, UserChangeForm):
     # Hide Password stuff
     password = None
     # Get other fields
