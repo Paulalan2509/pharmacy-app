@@ -1,10 +1,91 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block content %}
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16" style="font-family: 'Roboto Serif', serif;">
+    <nav class="text-sm text-gray-500 mb-6">
+        <a href="{% url 'forum:forum_home' %}" class="text-blue-600 hover:underline">Forums</a>
+        <span class="mx-2">/</span>
+        <a href="{% url 'forum:category_detail' slug=thread.category.slug %}" class="text-blue-600 hover:underline">{{ thread.category.name }}</a>
+        <span class="mx-2">/</span>
+        <span>{{ thread.title|truncatechars:40 }}</span>
+    </nav>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <article class="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">
+            {{ thread.title }}
+            {% if thread.is_closed %}<span class="ml-2 text-sm px-2 py-1 rounded bg-gray-200 text-gray-700 align-middle">Closed</span>{% endif %}
+        </h1>
+        <p class="text-sm text-gray-500 mt-1">
+            Started by <span class="font-medium">{{ thread.author.username }}</span>
+            on {{ thread.created_at|date:"d M Y" }} &middot; {{ thread.views }} views
+        </p>
+        {# Content is escaped by Django; linebreaksbr keeps the author's line breaks safely. #}
+        <div class="mt-4 text-gray-800">{{ thread.content|linebreaksbr }}</div>
+    </article>
+
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">{{ replies|length }} Repl{{ replies|length|pluralize:"y,ies" }}</h2>
+
+    <div class="space-y-4">
+        {% for reply in replies %}
+        <div id="reply-{{ reply.id }}" x-data="{ replying: false }"
+             class="bg-white rounded-lg shadow-sm p-5 {% if reply.is_solution %}border-2 border-green-400{% endif %}">
+            <div class="flex justify-between items-start">
+                <p class="text-sm text-gray-500">
+                    <span class="font-medium text-gray-800">{{ reply.user.username }}</span>
+                    &middot; {{ reply.created_at|date:"d M Y, H:i" }}
+                    {% if reply.parent %}
+                        &middot; in reply to <a href="#reply-{{ reply.parent.id }}" class="text-blue-600 hover:underline">{{ reply.parent.user.username }}</a>
+                    {% endif %}
+                    {% if reply.is_solution %}<span class="ml-2 text-xs px-2 py-1 rounded bg-green-100 text-green-700">Solution</span>{% endif %}
+                </p>
+                {% if user == thread.author %}
+                <form method="post" action="{% url 'forum:mark_solution' reply_id=reply.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="text-xs text-green-700 hover:underline">
+                        {% if reply.is_solution %}Unmark solution{% else %}Mark as solution{% endif %}
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            <div class="mt-2 text-gray-800">{{ reply.content|linebreaksbr }}</div>
+
+            {% if user.is_authenticated and not thread.is_closed %}
+            <button type="button" @click="replying = !replying" class="mt-3 text-sm text-blue-600 hover:underline">Reply</button>
+            <form x-show="replying" x-cloak method="post" class="mt-3"
+                  action="{% url 'forum:reply_to_comment' thread_id=thread.id parent_id=reply.id %}">
+                {% csrf_token %}
+                <textarea name="content" rows="3" required class="w-full p-2 border rounded" placeholder="Write a reply to {{ reply.user.username }}..."></textarea>
+                <button type="submit" class="mt-2 px-3 py-1 text-sm rounded-md text-white bg-blue-600 hover:bg-blue-700">Post reply</button>
+            </form>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p class="text-gray-500">No replies yet.</p>
+        {% endfor %}
+    </div>
+
+    <div class="mt-8">
+        {% if thread.is_closed %}
+            <p class="p-4 rounded-lg bg-gray-100 text-gray-600">This thread is closed to new replies.</p>
+        {% elif user.is_authenticated %}
+            <form method="post" class="bg-white rounded-lg shadow-sm p-6 space-y-3">
+                {% csrf_token %}
+                <h3 class="text-lg font-semibold text-gray-900">Add a reply</h3>
+                {{ form.content }}
+                {% for error in form.content.errors %}<p class="text-sm text-red-600">{{ error }}</p>{% endfor %}
+                <button type="submit" class="px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">Post reply</button>
+            </form>
+        {% else %}
+            <p class="p-4 rounded-lg bg-gray-100 text-gray-700">
+                <a href="{% url 'login' %}?next={{ thread.get_absolute_url }}" class="text-blue-600 hover:underline">Log in</a> to join the discussion.
+            </p>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}

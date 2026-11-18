@@ -2,7 +2,6 @@
 
 {% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -13,43 +12,31 @@
   }
 </style>
 
-<div class="bg-gray-100 min-h-screen " x-data="{ showBillingDetails: false }">
+<div class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold mb-8 text-center text-gray-800">Billing Info</h1>
-        <p class="text-xl text-center text-gray-600 mb-8">Enter Your Payment Info...</p>
+        <h1 class="text-4xl font-bold mb-8 text-center text-gray-800">Review &amp; Pay</h1>
+        <p class="text-xl text-center text-gray-600 mb-8">Order #{{ order.id }} &mdash; check your details, then pay securely with PayPal.</p>
 
         <div class="flex flex-col md:flex-row gap-8">
             <!-- Left Column -->
             <div class="md:w-2/3 space-y-8">
                 <!-- Order Summary Card -->
-                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-105">
+                <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="text-2xl font-bold mb-4">Order Summary</h2>
                     <div class="space-y-4">
-                        {% for product in cart_products %}
+                        {% for line in lines %}
                         <div class="flex justify-between items-center border-b pb-2">
                             <div>
-                                <h3 class="font-semibold">{{ product.name }}</h3>
-                                <p class="text-sm text-gray-600">
-                                    Quantity:
-                                    {% for key, value in quantities.items %}
-                                        {% if key == product.id|slugify %}
-                                            {{ value }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </p>
+                                <h3 class="font-semibold">{{ line.product.name }}</h3>
+                                <p class="text-sm text-gray-600">Quantity: {{ line.quantity }}</p>
                             </div>
-                            <p class="font-semibold">
-                                {% if product.is_sale %}
-                                    {{ product.sale_price }} FCfa
-                                {% else %}
-                                    {{ product.price }} FCfa
-                                {% endif %}
-                            </p>
+                            <p class="font-semibold">{{ line.line_total }} FCFA</p>
                         </div>
                         {% endfor %}
                     </div>
                     <div class="mt-4 text-right">
-                        <p class="text-xl font-bold">Total: {{ totals }} FCfa</p>
+                        <p class="text-xl font-bold">Total: {{ totals }} FCFA</p>
+                        <p class="text-sm text-gray-600">You will be charged {{ order.paypal_amount }} {{ order.paypal_currency }} by PayPal.</p>
                     </div>
                     <div class="mt-4">
                         <a href="{% url 'cart_summary' %}" class="inline-block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200">Update Items</a>
@@ -57,7 +44,7 @@
                 </div>
 
                 <!-- Shipping Info Card -->
-                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-105">
+                <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="text-2xl font-bold mb-4">Shipping Information</h2>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -81,8 +68,8 @@
                             <p>{{ shipping_info.shipping_city }}</p>
                         </div>
                         <div>
-                            <p class="font-medium">State:</p>
-                            <p>{{ shipping_info.shipping_state }}</p>
+                            <p class="font-medium">Region:</p>
+                            <p>{{ shipping_info.shipping_region }}</p>
                         </div>
                         <div>
                             <p class="font-medium">Zipcode:</p>
@@ -92,6 +79,10 @@
                             <p class="font-medium">Country:</p>
                             <p>{{ shipping_info.shipping_country }}</p>
                         </div>
+                        <div>
+                            <p class="font-medium">Phone:</p>
+                            <p>{{ shipping_info.shipping_phone }}</p>
+                        </div>
                     </div>
                     <div class="mt-6">
                         <a href="{% url 'checkout' %}" class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200">
@@ -100,77 +91,34 @@
                     </div>
                 </div>
 
-                <!-- PayPal Form -->
-                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-105">
-                    <h2 class="text-2xl font-bold mb-4">PayPal Payment</h2>
+                <!-- PayPal -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold mb-4">Pay with PayPal</h2>
+                    <p class="text-sm text-gray-600 mb-4">
+                        You will be redirected to PayPal to pay. Card details are entered on PayPal's site only &mdash;
+                        they never reach our server. Your order is confirmed once PayPal notifies us of the payment.
+                    </p>
                     <div class="flex justify-center">
                         {{ paypal_form.render }}
                     </div>
-                </div>
-
-<!--                &lt;!&ndash; CinetPay Payment &ndash;&gt;-->
-<!--                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-105">-->
-<!--                    <h2 class="text-2xl font-bold mb-4">CinetPay Payment</h2>-->
-<!--                    <div class="flex flex-col items-center space-y-4">-->
-<!--                        {% if cinetpay_payment_url %}-->
-<!--                            <p class="text-gray-600 text-center mb-4">-->
-<!--                                Pay securely using CinetPay - Supporting Mobile Money, Card Payments and More-->
-<!--                            </p>-->
-<!--                            <a href="{{ cinetpay_payment_url }}"-->
-<!--                               class="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors duration-200 text-center w-full md:w-auto">-->
-<!--                                Pay with CinetPay-->
-<!--                            </a>-->
-<!--                        {% else %}-->
-<!--                            <p class="text-red-500 text-center">-->
-<!--                                CinetPay payment initialization failed. Please try again or choose another payment method.-->
-<!--                            </p>-->
-<!--                            <button onclick="window.location.reload()"-->
-<!--                                    class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200">-->
-<!--                                Try Again-->
-<!--                            </button>-->
-<!--                        {% endif %}-->
-<!--                    </div>-->
-<!--                </div>-->
-
-                <!-- Billing Info Card -->
-                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-105">
-                    <h2 class="text-2xl font-bold mb-4">Billing Info</h2>
-                    <form method="POST" action="{% url 'process_order' %}" class="space-y-4">
-                        {% csrf_token %}
-                        {% for field in billing_form %}
-                        <div class="flex flex-col">
-                            <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
-                            {{ field }}
-                        </div>
-                        {% endfor %}
-                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200">
-                            Pay Now
-                        </button>
-                    </form>
                 </div>
             </div>
 
             <!-- Right Column -->
             <div class="md:w-1/3 space-y-8">
-                <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-105">
+                <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="text-2xl font-bold mb-4">Order Details</h2>
                     <div class="space-y-2">
-                        {% for product in cart_products %}
+                        {% for line in lines %}
                         <div class="flex justify-between">
-                            <span>{{ product.name }}</span>
-                            <span>
-                                {% if product.is_sale %}
-                                    {{ product.sale_price }} Fcfa
-                                {% else %}
-                                    {{ product.price }} Fcfa
-                                {% endif %}
-                            </span>
+                            <span>{{ line.product.name }} &times; {{ line.quantity }}</span>
+                            <span>{{ line.line_total }} FCFA</span>
                         </div>
                         {% endfor %}
                         <div class="border-t pt-2 mt-2">
                             <div class="flex justify-between font-bold">
                                 <span>Total</span>
-                                <span>{{ totals }} Fcfa</span>
+                                <span>{{ totals }} FCFA</span>
                             </div>
                         </div>
                     </div>
@@ -180,21 +128,4 @@
     </div>
 </div>
 
-
-
-<script>
-document.addEventListener('DOMContentLoaded', (event) => {
-    gsap.from(".bg-white", {
-        duration: 1,
-        y: 50,
-        opacity: 0,
-        stagger: 0.2,
-        ease: "power3.out",
-        onComplete: () => {
-                gsap.to(".bg-white", { clearProps: "all" });
-            }
-        });
-    });
-});
-</script>
 {% endblock %}

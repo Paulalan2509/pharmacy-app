@@ -1,0 +1,5 @@
+# Production with MySQL (DB_ENGINE=mysql, the default). Install with:
+#   pip install -r requirements-mysql.txt
+# mysqlclient needs the MySQL client headers to build (e.g. `apt install libmysqlclient-dev pkg-config`).
+-r requirements.txt
+mysqlclient>=2.2,<3
