@@ -40,7 +40,8 @@ pharmacy-app/
 ├── media/                # Uploaded and seed media files
 ├── static/               # CSS, JavaScript, and favicon
 ├── manage.py             # Django management entry point
-├── requirements.txt      # Production dependencies
+├── requirements.txt      # Core dependencies
+├── requirements-mysql.txt# Adds mysqlclient for MySQL
 ├── requirements-dev.txt  # Development-only tools
 └── .env.example          # Template for your local .env (never commit .env)
 ```
@@ -92,11 +93,12 @@ Windows PowerShell:
 
 ```bash
 python -m pip install --upgrade pip
-python -m pip install -r requirements-dev.txt   # development (adds browser reload + django-extensions)
-# python -m pip install -r requirements.txt     # production
+python -m pip install -r requirements-dev.txt     # development (adds browser reload + django-extensions)
+# python -m pip install -r requirements-mysql.txt # production with MySQL (adds mysqlclient)
+# python -m pip install -r requirements.txt       # production with SQLite / any other database
 ```
 
-`mysqlclient` is only needed when you use MySQL. On Windows it may not build; for local work set `DB_ENGINE=sqlite` and remove that line from `requirements.txt` if the install fails.
+`mysqlclient` lives in its own file because it needs the MySQL client headers to build (it often fails on Windows). Local development with `DB_ENGINE=sqlite` does not need it.
 
 ### 4. Configure the environment
 
