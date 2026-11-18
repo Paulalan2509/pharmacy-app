@@ -9,7 +9,7 @@ PharmaHope is a Django-based online pharmacy and health community platform. It c
 - Register, sign in, update account details, manage profile information, and change passwords.
 - Add products to a session-based shopping cart, update quantities, and persist the cart for signed-in users.
 - Checkout with shipping information and order creation.
-- PayPal IPN integration for payment notifications; CinetPay configuration is also present for payment gateway work.
+- PayPal checkout: totals are computed on the server, and an order is marked paid only after PayPal's verified IPN notification matches it.
 - Admin and staff order-management views for shipping status.
 - Publish and manage blog posts with categories, tags, featured images, comments, pagination, and moderation.
 - Create forum categories and threads, reply to discussions, and mark replies as solutions.
@@ -19,12 +19,11 @@ PharmaHope is a Django-based online pharmacy and health community platform. It c
 ## Technology
 
 - Python 3.12+ recommended
-- Django 5.1
+- Django 5.2 LTS
 - MySQL
 - Django Tailwind
-- PayPal IPN
-- CinetPay configuration
-- SQLite database file included in the repository for local data, while the active settings use MySQL
+- PayPal (django-paypal, IPN)
+- MySQL in production; SQLite for quick local development (`DB_ENGINE=sqlite`)
 - HTML templates, CSS, and vanilla JavaScript
 
 ## Project structure
@@ -34,14 +33,16 @@ pharmacy-app/
 ├── blog/                 # Blog posts, categories, tags, comments, and moderation
 ├── cart/                 # Session cart and cart endpoints
 ├── forum/                # Community categories, threads, and replies
-├── payment/              # Shipping, orders, checkout, and PayPal integration
+├── payment/              # Shipping, orders, checkout, and PayPal integration (services.py, signals.py)
 ├── pharmahope/           # Django project settings, URLs, ASGI, and WSGI
 ├── store/                # Products, categories, profiles, reviews, accounts, and storefront
 ├── theme/                # Django Tailwind app
 ├── media/                # Uploaded and seed media files
 ├── static/               # CSS, JavaScript, and favicon
 ├── manage.py             # Django management entry point
-└── db.sqlite3            # Checked-in SQLite database file
+├── requirements.txt      # Production dependencies
+├── requirements-dev.txt  # Development-only tools
+└── .env.example          # Template for your local .env (never commit .env)
 ```
 
 ## Main routes
@@ -89,54 +90,46 @@ Windows PowerShell:
 
 ### 3. Install Python dependencies
 
-This repository does not currently include a `requirements.txt` or `pyproject.toml`. Install the packages used by the project:
-
 ```bash
 python -m pip install --upgrade pip
-python -m pip install \
-  "Django>=5.1,<5.2" \
-  django-tailwind \
-  django-browser-reload \
-  django-extensions \
-  django-paypal \
-  mysqlclient \
-  Pillow \
-  requests
+python -m pip install -r requirements-dev.txt   # development (adds browser reload + django-extensions)
+# python -m pip install -r requirements.txt     # production
 ```
 
-On Windows, use a MySQL client package compatible with your Python version if `mysqlclient` cannot be built locally.
+`mysqlclient` is only needed when you use MySQL. On Windows it may not build; for local work set `DB_ENGINE=sqlite` and remove that line from `requirements.txt` if the install fails.
 
-### 4. Configure the database
+### 4. Configure the environment
 
-The active configuration in `pharmahope/settings.py` expects a local MySQL database with:
+All secrets and environment-specific values come from environment variables. Copy the template and fill it in:
+
+```bash
+cp .env.example .env
+```
+
+For local development the simplest setup is:
 
 ```text
-Database: pharmadb
-User: root
-Host: localhost
-Port: 3306
+DJANGO_DEBUG=True
+DB_ENGINE=sqlite
 ```
 
-Create the database before migrating:
+`DJANGO_DEBUG` defaults to **False**, and in that mode the app refuses to start unless `DJANGO_SECRET_KEY`, `DJANGO_ALLOWED_HOSTS` and database credentials are set. `.env` is git-ignored.
+
+To use MySQL instead, create the database and set `DB_ENGINE=mysql`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`:
 
 ```sql
 CREATE DATABASE pharmadb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-Update the database settings for your local credentials. For a quick local prototype, the `db.sqlite3` file is present, but Django will use the configured MySQL connection unless `DATABASES` is changed.
+### 5. Configure PayPal
 
-### 5. Configure payment and development settings
+Set these in `.env` (use PayPal **sandbox** values while developing):
 
-Before running the project, review `pharmahope/settings.py` and configure:
+- `PAYPAL_TEST=True` for the sandbox, `False` for live payments
+- `PAYPAL_RECEIVER_EMAIL` - the PayPal business account that receives payments
+- `PAYPAL_EXCHANGE_RATE` - how many `STORE_CURRENCY` units (default `XAF`/Fcfa) equal 1 `PAYPAL_CURRENCY` (default `USD`). PayPal does not support XAF, so this is **required**: checkout refuses to start a payment without it rather than charging a guessed amount.
 
-- `SECRET_KEY`
-- `DEBUG` and `ALLOWED_HOSTS`
-- MySQL credentials
-- PayPal sandbox receiver settings
-- CinetPay API settings and callback URLs
-- `NPM_BIN_PATH` if Tailwind is used on Windows
-
-The current settings contain hard-coded development secrets and payment credentials. Do not reuse them in production; move secrets to environment variables and rotate any credentials that have been exposed.
+PayPal must be able to reach your server to send payment notifications (IPN) at `/payment/paypal`, so use a public HTTPS URL (for local testing, a tunnel such as ngrok).
 
 ### 6. Apply migrations and create an administrator
 
@@ -166,9 +159,15 @@ Run the Django server in a separate terminal. Django Browser Reload is enabled f
 
 ## Payments and checkout
 
-Checkout uses the cart contents and shipping information to create an `Order` and related `OrderItem` records. PayPal payment forms and IPN URLs are wired through the `payment` app. CinetPay settings and an unfinished/example API implementation are also present, but the active checkout flow currently constructs a PayPal form.
+1. The customer fills in shipping details at `/payment/checkout`. They are validated with `ShippingForm`.
+2. `billing_info` creates a **pending** order and its items from the cart, using prices from the database (nothing price-related is read from the browser). The Fcfa total is converted to the PayPal currency with `PAYPAL_EXCHANGE_RATE`, and that exact amount is stored on the order.
+3. The customer pays on PayPal's own site. Card details never reach this server.
+4. PayPal sends an IPN to `/payment/paypal`. `payment/signals.py` marks the order **paid** only if the notification is verified by django-paypal *and* the receiver, currency and amount match the order exactly. Replayed notifications are harmless, and refunds/reversals are recorded.
+5. Only paid orders appear in the "not shipped" dashboard and can be marked as shipped.
 
-Use sandbox/test credentials and callback URLs while developing. Payment callbacks must be publicly reachable over HTTPS in a deployed environment.
+The page PayPal returns the customer to (`/payment/payment_success`) does not confirm payment on its own; it shows the order's real status.
+
+Orders that were already marked shipped before payment tracking existed are migrated to "paid"; other pre-existing orders become "pending" and can be reviewed in the admin.
 
 ## Administration
 
@@ -189,24 +188,23 @@ python manage.py collectstatic
 
 ## Testing and checks
 
-Run Django's built-in checks and test discovery with:
-
 ```bash
 python manage.py check
 python manage.py test
 ```
 
-The repository currently contains only placeholder test modules, so additional automated coverage is recommended before production use.
+The test suite covers the cart limits, server-side totals, the PayPal currency guard, IPN verification (amount, currency, receiver, replay, refund), shipping permissions, and the forum. Run it with `DJANGO_DEBUG=True DB_ENGINE=sqlite` for a quick local run.
 
 ## Production checklist
 
-- Move all secrets and payment credentials to environment variables or a secret manager.
-- Rotate credentials currently present in source-controlled settings.
-- Set `DEBUG = False` and configure `ALLOWED_HOSTS`.
-- Use HTTPS and production payment callback URLs.
-- Configure a production database, static file server, media storage, email backend, and logging.
-- Review authentication, authorization, CSRF, checkout, and payment callback behavior before accepting real orders.
-- Do not use the checked-in development database as production data.
+- Set `DJANGO_DEBUG=False`, a unique `DJANGO_SECRET_KEY`, `DJANGO_ALLOWED_HOSTS`, and `DJANGO_CSRF_TRUSTED_ORIGINS` (with `https://`).
+- Use HTTPS. Behind a reverse proxy, set `DJANGO_BEHIND_PROXY=True`. Start with a short `DJANGO_HSTS_SECONDS` and raise it once HTTPS is confirmed. Run `python manage.py check --deploy`.
+- Use a dedicated database user with a password (never `root`).
+- Set `PAYPAL_TEST=False`, your live `PAYPAL_RECEIVER_EMAIL` and a current `PAYPAL_EXCHANGE_RATE`, and verify a real IPN end-to-end in the sandbox first.
+- Run `python manage.py collectstatic` and serve static and media files from a web server or object storage (not Django).
+- Configure email, backups and monitoring.
+- Review the legal requirements for selling medicines in your country (prescription-only products, licensing) before accepting real orders.
+- If credentials were ever committed to this repository, rotate them: removing them from the code does not remove them from git history.
 
 ## License
 
