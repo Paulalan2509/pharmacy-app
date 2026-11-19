@@ -1,0 +1,32 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    env:
+      DJANGO_DEBUG: "True"
+      DB_ENGINE: sqlite
+      DB_NAME: ci.sqlite3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - run: python -m pip install -r requirements.txt
+      - name: System checks
+        run: python manage.py check
+      - name: No forgotten migrations (apps without known drift)
+        run: python manage.py makemigrations --check --dry-run store payment cart
+      - name: Test suite
+        run: python manage.py test --verbosity 1
