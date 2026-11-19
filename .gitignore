@@ -23,3 +23,7 @@ Thumbs.db
 # Build output
 staticfiles/
 node_modules/
+
+# Coverage reports
+.coverage
+htmlcov/
