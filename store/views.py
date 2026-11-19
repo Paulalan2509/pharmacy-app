@@ -390,9 +390,11 @@ def update_info(request):
 def search(request):
     # Determine if they filled out the form
     if request.method == "POST":
-        searched = request.POST['searched']
+        term = request.POST.get('searched', '').strip()
+        if not term:
+            return render(request, "search.html", {})
         # Query The Products DB Model
-        searched = Product.objects.filter(Q(name__icontains=searched) | Q(description__icontains=searched))
+        searched = Product.objects.filter(Q(name__icontains=term) | Q(description__icontains=term))
         # Test for null
         if not searched:
             messages.error(request, "That Product Does Not Exist...Please try Again.")

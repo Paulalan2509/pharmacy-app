@@ -203,7 +203,9 @@ python manage.py check
 python manage.py test
 ```
 
-The test suite covers the cart limits, server-side totals, the PayPal currency guard, IPN verification (amount, currency, receiver, replay, refund), shipping permissions, the forum, blog security (XSS, permissions, drafts), login throttling, unique emails, and store filtering/pagination. Run it with `DJANGO_DEBUG=True DB_ENGINE=sqlite` for a quick local run.
+The test suite covers the cart limits, server-side totals, the PayPal currency guard, IPN verification (amount, currency, receiver, replay, refund), shipping permissions, the forum, blog security (XSS, permissions, drafts, editing), login throttling, unique emails, registration and account pages, saved-cart restore, search, reviews, and store filtering/pagination. Run it with `DJANGO_DEBUG=True DB_ENGINE=sqlite` for a quick local run.
+
+Tests are split by area (`tests.py` for the original suites, plus `test_*.py` files such as `store/test_pages.py`, `store/test_account_flows.py`, `payment/test_services.py`, `payment/test_dashboards.py` and `blog/test_management.py`). GitHub Actions (`.github/workflows/tests.yml`) runs the system check, a migrations check and the whole suite on Python 3.12 and 3.13 for every push to `main` and every pull request. To measure coverage locally: `pip install coverage`, then `coverage run manage.py test` and `coverage report -m`.
 
 ## Production checklist
 
