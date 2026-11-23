@@ -1,5 +1,7 @@
 # PharmaHope
 
+[![Tests](https://github.com/Paulalan2509/pharmacy-app/actions/workflows/tests.yml/badge.svg)](https://github.com/Paulalan2509/pharmacy-app/actions/workflows/tests.yml)
+
 PharmaHope is a Django-based online pharmacy and health community platform. It combines a medicine catalog and shopping cart with customer accounts, checkout and payment integrations, a health blog, and a discussion forum.
 
 ## Features
