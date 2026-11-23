@@ -1,0 +1,5 @@
+# Keep GitHub language stats honest: Django templates are not a separate "HTML project"
+*.html linguist-detectable=false
+theme/static/** linguist-generated
+*.min.js linguist-vendored
+*.min.css linguist-vendored
