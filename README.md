@@ -4,6 +4,16 @@
 
 PharmaHope is a Django-based online pharmacy and health community platform. It combines a medicine catalog and shopping cart with customer accounts, checkout and payment integrations, a health blog, and a discussion forum.
 
+## Screenshots
+
+Captured from a local development run with sample data (`python manage.py seed_demo_data`).
+
+| Home | Services |
+| --- | --- |
+| ![PharmaHope home page](docs/home-hero.jpg) | ![Services section](docs/home-services.jpg) |
+
+![About section](docs/home-trademark.jpg)
+
 ## Features
 
 - Browse pharmacy products by category, price, name, availability, and sale status.

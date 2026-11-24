@@ -1,4 +1,4 @@
-"""Fill a local database with sample pharmacy products so the store looks alive.
+"""Fill a local database (prices are in FCFA) with sample pharmacy products so the store looks alive.
 
 Development only: it refuses to run when DJANGO_DEBUG is off. Every product,
 price and description is made up. Product images are simple generated tiles.
@@ -27,18 +27,18 @@ CATEGORIES = {
 
 # (name, category, price, description, sale_price or None, status)
 PRODUCTS = [
-    ('Vitamin C 500 mg', 'Vitamins & Supplements', '8.50', 'Sample product. Daily vitamin C tablets, 60 count.', None, 'In Stock'),
-    ('Multivitamin Daily', 'Vitamins & Supplements', '12.00', 'Sample product. Once-a-day multivitamin, 90 count.', '9.99', 'In Stock'),
-    ('Zinc 25 mg', 'Vitamins & Supplements', '7.25', 'Sample product. Zinc tablets, 100 count.', None, 'In Stock'),
-    ('Paracetamol 500 mg', 'Pain Relief', '3.20', 'Sample product. Pain and fever relief tablets, 20 count.', None, 'In Stock'),
-    ('Ibuprofen Gel', 'Pain Relief', '6.80', 'Sample product. Topical gel for muscle aches, 50 g.', '5.50', 'In Stock'),
-    ('Adhesive Bandages', 'First Aid', '2.90', 'Sample product. Assorted sizes, box of 40.', None, 'In Stock'),
-    ('Antiseptic Solution', 'First Aid', '4.10', 'Sample product. Skin antiseptic, 100 ml.', None, 'In Stock'),
-    ('Moisturising Cream', 'Skin Care', '9.40', 'Sample product. Fragrance-free daily moisturiser, 200 ml.', None, 'In Stock'),
-    ('Sunscreen SPF 50', 'Skin Care', '11.60', 'Sample product. Broad-spectrum sunscreen lotion, 100 ml.', '9.90', 'In Stock'),
-    ('Throat Lozenges', 'Cold & Flu', '3.75', 'Sample product. Honey and lemon lozenges, 24 count.', None, 'In Stock'),
-    ('Saline Nasal Spray', 'Cold & Flu', '5.30', 'Sample product. Saline spray, 30 ml.', None, 'In Stock'),
-    ('Digital Thermometer', 'First Aid', '10.20', 'Sample product. Fast-read digital thermometer.', None, 'In Stock'),
+    ('Vitamin C 500 mg', 'Vitamins & Supplements', '2000', 'Sample product. Daily vitamin C tablets, 60 count.', None, 'In Stock'),
+    ('Multivitamin Daily', 'Vitamins & Supplements', '3000', 'Sample product. Once-a-day multivitamin, 90 count.', '2500', 'In Stock'),
+    ('Zinc 25 mg', 'Vitamins & Supplements', '2500', 'Sample product. Zinc tablets, 100 count.', None, 'In Stock'),
+    ('Paracetamol 500 mg', 'Pain Relief', '1000', 'Sample product. Pain and fever relief tablets, 20 count.', None, 'In Stock'),
+    ('Ibuprofen Gel', 'Pain Relief', '1500', 'Sample product. Topical gel for muscle aches, 50 g.', '1200', 'In Stock'),
+    ('Adhesive Bandages', 'First Aid', '800', 'Sample product. Assorted sizes, box of 40.', None, 'In Stock'),
+    ('Antiseptic Solution', 'First Aid', '1200', 'Sample product. Skin antiseptic, 100 ml.', None, 'In Stock'),
+    ('Moisturising Cream', 'Skin Care', '3500', 'Sample product. Fragrance-free daily moisturiser, 200 ml.', None, 'In Stock'),
+    ('Sunscreen SPF 50', 'Skin Care', '4500', 'Sample product. Broad-spectrum sunscreen lotion, 100 ml.', '3800', 'In Stock'),
+    ('Throat Lozenges', 'Cold & Flu', '1000', 'Sample product. Honey and lemon lozenges, 24 count.', None, 'In Stock'),
+    ('Saline Nasal Spray', 'Cold & Flu', '1800', 'Sample product. Saline spray, 30 ml.', None, 'In Stock'),
+    ('Digital Thermometer', 'First Aid', '3000', 'Sample product. Fast-read digital thermometer.', None, 'In Stock'),
 ]
 
 
