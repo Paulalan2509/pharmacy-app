@@ -8,11 +8,13 @@ PharmaHope is a Django-based online pharmacy and health community platform. It c
 
 Captured from a local development run with sample data (`python manage.py seed_demo_data`).
 
-| Home | Services |
+| Home | Store |
 | --- | --- |
-| ![PharmaHope home page](docs/home-hero.jpg) | ![Services section](docs/home-services.jpg) |
+| ![PharmaHope home page](docs/home-hero.jpg) | ![Store with filters and product cards](docs/store.jpg) |
 
-![About section](docs/home-trademark.jpg)
+| Services | About |
+| --- | --- |
+| ![Services section](docs/home-services.jpg) | ![About section](docs/home-trademark.jpg) |
 
 ## Features
 
